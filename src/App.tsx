@@ -60,6 +60,8 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  console.log('Checking Environment Variable. API URL is:', process.env.REACT_APP_API_URL);
+
   useEffect(() => {
     // Initialize PWA features
     // registerServiceWorker(); // Temporarily disabled for Google OAuth debugging
