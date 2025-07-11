@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h2 {
+            color: #666;
+            margin-top: 0;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .success {
+            color: #28a745;
+        }
+        .error {
+            color: #dc3545;
+        }
+        .info {
+            color: #6c757d;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        pre {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Admin Dashboard API Test</h1>
+        <p class="info">Test the admin dashboard API endpoints to ensure all buttons will work properly.</p>
+        
+        <div class="test-section">
+            <h2>📊 Dashboard Stats</h2>
+            <button onclick="testDashboardStats()">Test Dashboard Stats</button>
+            <div id="dashboard-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🏠 PG Management</h2>
+            <button onclick="testGetPGs()">Get All PGs</button>
+            <button onclick="testApprovePG()">Approve PG</button>
+            <button onclick="testRejectPG()">Reject PG</button>
+            <div id="pg-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>👥 User Management</h2>
+            <button onclick="testGetUsers()">Get All Users</button>
+            <button onclick="testToggleUserStatus()">Toggle User Status</button>
+            <div id="user-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📅 Booking Management</h2>
+            <button onclick="testGetBookings()">Get All Bookings</button>
+            <div id="booking-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🚨 System Alerts</h2>
+            <button onclick="testGetAlerts()">Get System Alerts</button>
+            <button onclick="testResolveAlert()">Resolve Alert</button>
+            <div id="alert-result" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📈 Analytics</h2>
+            <button onclick="testAnalytics()">Test Analytics APIs</button>
+            <div id="analytics-result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:5001/api';
+
+        async function makeRequest(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                return { success: true, data };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function testDashboardStats() {
+            const resultDiv = document.getElementById('dashboard-result');
+            resultDiv.innerHTML = '<div class="info">Testing dashboard stats...</div>';
+            
+            const result = await makeRequest('/admin/dashboard');
+            
+            if (result.success) {
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Dashboard stats loaded successfully!</div>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
+            }
+        }
+
+        async function testGetPGs() {
+            const resultDiv = document.getElementById('pg-result');
+            resultDiv.innerHTML = '<div class="info">Testing PG list...</div>';
+            
+            const result = await makeRequest('/admin/pgs');
+            
+            if (result.success) {
+                resultDiv.innerHTML = `
+                    <div class="success">✅ PG list loaded successfully!</div>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
+            }
+        }
+
+        async function testApprovePG() {
+            const resultDiv = document.getElementById('pg-result');
+            resultDiv.innerHTML = '<div class="info">Testing PG approval...</div>';
+            
+            const result = await makeRequest('/admin/pgs/pg-1/approve', {
+                method: 'PUT'
+            });
+            
+            if (result.success) {
+                resultDiv.innerHTML = `
+                    <div class="success">✅ PG approved successfully!</div>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
+            }
+        }
+
+        async function testRejectPG() {
+            const resultDiv = document.getElementById('pg-result');
+            resultDiv.innerHTML = '<div class="info">Testing PG rejection...</div>';
+            
+            const result = await makeRequest('/admin/pgs/pg-3/reject', {
+                method: 'PUT',
+                body: JSON.stringify({ reason: 'Test rejection - not meeting quality standards' })
+            });
+            
+            if (result.success) {
+                resultDiv.innerHTML = `
+                    <div class="success">✅ PG rejected successfully!</div>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
+            }
+        }
+
+        async function testGetUsers() {
+            const resultDiv = document.getElementById('user-result');
+            resultDiv.innerHTML = '<div class="info">Testing user list...</div>';
+            
+            const result = await makeRequest('/admin/users');
+            
+            if (result.success) {
+                resultDiv.innerHTML = `
+                    <div class="success">✅ User list loaded successfully!</div>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
+            }
+        }
+
+        async function testToggleUserStatus() {
+            const resultDiv = document.getElementById('user-result');
+            resultDiv.innerHTML = '<div class="info">Testing user status toggle...</div>';
+            
+            const result = await makeRequest('/admin/users/1/toggle-status', {
+                method: 'PUT'
+            });
+            
+            if (result.success) {
+                resultDiv.innerHTML = `
+                    <div class="success">✅ User status toggled successfully!</div>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
+            }
+        }
+
+        async function testGetBookings() {
+            const resultDiv = document.getElementById('booking-result');
+            resultDiv.innerHTML = '<div class="info">Testing booking list...</div>';
+            
+            const result = await makeRequest('/admin/bookings');
+            
+            if (result.success) {
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Booking list loaded successfully!</div>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
+            }
+        }
+
+        async function testGetAlerts() {
+            const resultDiv = document.getElementById('alert-result');
+            resultDiv.innerHTML = '<div class="info">Testing system alerts...</div>';
+            
+            const result = await makeRequest('/admin/system/alerts');
+            
+            if (result.success) {
+                resultDiv.innerHTML = `
+                    <div class="success">✅ System alerts loaded successfully!</div>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
+            }
+        }
+
+        async function testResolveAlert() {
+            const resultDiv = document.getElementById('alert-result');
+            resultDiv.innerHTML = '<div class="info">Testing alert resolution...</div>';
+            
+            const result = await makeRequest('/admin/system/alerts/1/resolve', {
+                method: 'PUT'
+            });
+            
+            if (result.success) {
+                resultDiv.innerHTML = `
+                    <div class="success">✅ Alert resolved successfully!</div>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${result.error}</div>`;
+            }
+        }
+
+        async function testAnalytics() {
+            const resultDiv = document.getElementById('analytics-result');
+            resultDiv.innerHTML = '<div class="info">Testing analytics APIs...</div>';
+            
+            const tests = [
+                { name: 'Revenue Analytics', endpoint: '/admin/analytics/revenue' },
+                { name: 'User Growth Analytics', endpoint: '/admin/analytics/users' },
+                { name: 'Booking Analytics', endpoint: '/admin/analytics/bookings' }
+            ];
+            
+            let results = '';
+            
+            for (const test of tests) {
+                const result = await makeRequest(test.endpoint);
+                if (result.success) {
+                    results += `<div class="success">✅ ${test.name}: OK</div>`;
+                } else {
+                    results += `<div class="error">❌ ${test.name}: ${result.error}</div>`;
+                }
+            }
+            
+            resultDiv.innerHTML = results;
+        }
+
+        // Auto-run dashboard stats test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            testDashboardStats();
+        });
+    </script>
+</body>
+</html>

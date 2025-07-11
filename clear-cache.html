@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Service Worker & Cache</title>
+</head>
+<body>
+    <h1>Clearing Service Worker & Cache...</h1>
+    <div id="status">Working...</div>
+    
+    <script>
+        async function clearEverything() {
+            const status = document.getElementById('status');
+            
+            try {
+                if ('serviceWorker' in navigator) {
+                    // Get all registrations
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    
+                    // Unregister all service workers
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                        console.log('Unregistered service worker:', registration);
+                    }
+                    
+                    // Clear all caches
+                    const cacheNames = await caches.keys();
+                    for (let cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                        console.log('Deleted cache:', cacheName);
+                    }
+                    
+                    status.innerHTML = `
+                        <h2 style="color: green;">Success!</h2>
+                        <p>Unregistered ${registrations.length} service worker(s)</p>
+                        <p>Deleted ${cacheNames.length} cache(s)</p>
+                        <p><strong>Now go to localhost:3000 and refresh (Ctrl+F5)</strong></p>
+                        <button onclick="window.open('http://localhost:3000', '_blank')">Open App</button>
+                    `;
+                } else {
+                    status.innerHTML = '<p style="color: red;">Service Worker not supported</p>';
+                }
+            } catch (error) {
+                status.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                console.error('Error:', error);
+            }
+        }
+        
+        // Run immediately
+        clearEverything();
+    </script>
+</body>
+</html>

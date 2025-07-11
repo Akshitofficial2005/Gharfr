@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Google Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .status { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        .loading { background-color: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        #google-button { margin: 20px 0; min-height: 50px; }
+        .demo-login { margin: 20px 0; padding: 15px; background-color: #e9ecef; border-radius: 4px; }
+        .demo-login h3 { margin-top: 0; }
+        .demo-btn { display: inline-block; margin: 5px; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; font-size: 14px; }
+        .demo-btn:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Google OAuth Test</h1>
+    <div id="status" class="status loading">Testing Google SDK...</div>
+    <div id="google-button"></div>
+    
+    <!-- Demo Login Section -->
+    <div class="demo-login">
+        <h3>🚀 Skip Google Login - Use Demo Account</h3>
+        <p>While we fix Google OAuth, you can test the app with these demo accounts:</p>
+        <a href="http://localhost:3000/working-login" class="demo-btn">Try Demo Login</a>
+        <a href="http://localhost:3000/working-register" class="demo-btn">Create Account</a>
+        <p><small>Demo accounts work without Google OAuth and have all features.</small></p>
+    </div>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        let testTimeout;
+        
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = new Date().toLocaleTimeString() + ': ' + message;
+            statusDiv.className = 'status ' + type;
+            console.log(message);
+        }
+
+        function testGoogleSDK() {
+            updateStatus('Loading Google SDK...', 'loading');
+            
+            // Set a timeout for the entire test
+            testTimeout = setTimeout(() => {
+                updateStatus('Google SDK failed to load within 10 seconds. Using demo login instead.', 'error');
+                showDemoLoginSuggestion();
+            }, 10000);
+
+            // Wait for script to load
+            let attempts = 0;
+            const checkSDK = () => {
+                attempts++;
+                
+                if (window.google?.accounts?.id) {
+                    clearTimeout(testTimeout);
+                    updateStatus('Google SDK loaded successfully!', 'success');
+                    initializeGoogle();
+                } else if (attempts > 100) {
+                    clearTimeout(testTimeout);
+                    updateStatus('Google SDK not available after 10 seconds', 'error');
+                    showDemoLoginSuggestion();
+                } else {
+                    setTimeout(checkSDK, 100);
+                }
+            };
+            
+            setTimeout(checkSDK, 500); // Give script time to start loading
+        }
+
+        function initializeGoogle() {
+            try {
+                updateStatus('Initializing Google Sign-In...', 'loading');
+                
+                window.google.accounts.id.initialize({
+                    client_id: '715647564219-ebiebv3t4dhnj7gdkn1v9n0arbt579v6.apps.googleusercontent.com',
+                    callback: handleGoogleResponse,
+                    auto_select: false,
+                    cancel_on_tap_outside: true,
+                    ux_mode: 'popup'
+                });
+
+                window.google.accounts.id.renderButton(
+                    document.getElementById('google-button'),
+                    {
+                        theme: 'outline',
+                        size: 'large',
+                        text: 'signin_with',
+                        shape: 'rectangular',
+                        width: 300
+                    }
+                );
+
+                updateStatus('Google Sign-In button rendered successfully!', 'success');
+            } catch (error) {
+                updateStatus('Error initializing Google: ' + error.message, 'error');
+                showDemoLoginSuggestion();
+            }
+        }
+
+        function handleGoogleResponse(response) {
+            updateStatus('Google login successful! Token received.', 'success');
+            console.log('Google credential:', response.credential);
+            alert('Google login works! You can now integrate this with your React app.');
+        }
+
+        function showDemoLoginSuggestion() {
+            const buttonDiv = document.getElementById('google-button');
+            buttonDiv.innerHTML = `
+                <div style="text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 4px; border: 2px dashed #dee2e6;">
+                    <p style="margin: 0; color: #6c757d;">Google Sign-In unavailable</p>
+                    <p style="margin: 10px 0 0 0; font-size: 14px; color: #6c757d;">Use demo accounts below instead</p>
+                </div>
+            `;
+        }
+
+        // Start the test
+        updateStatus('Starting Google OAuth test...', 'info');
+        testGoogleSDK();
+        
+        // Show current page info
+        setTimeout(() => {
+            const info = `
+                <br><strong>Current Page:</strong> ${window.location.href}
+                <br><strong>Origin:</strong> ${window.location.origin}
+                <br><strong>Client ID:</strong> 715647564219-ebiebv3t4dhnj7gdkn1v9n0arbt579v6.apps.googleusercontent.com
+            `;
+            document.body.innerHTML += `<div class="status info">${info}</div>`;
+        }, 1000);
+    </script>
+</body>
+</html>

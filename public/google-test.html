@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google SDK Test</title>
+</head>
+<body>
+    <h1>Google SDK Loading Test</h1>
+    <div id="status">Testing...</div>
+    <div id="google-button" style="margin-top: 20px;"></div>
+    
+    <script>
+        console.log('Starting Google SDK test...');
+        console.log('Current URL:', window.location.href);
+        console.log('Current origin:', window.location.origin);
+        
+        // Function to update status
+        function updateStatus(message, color = 'black') {
+            document.getElementById('status').innerHTML = message;
+            document.getElementById('status').style.color = color;
+            console.log(message);
+        }
+        
+        // Load Google SDK
+        updateStatus('Loading Google SDK...');
+        
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        
+        script.onload = () => {
+            updateStatus('Script loaded, checking SDK...');
+            
+            let attempts = 0;
+            const checkGoogle = () => {
+                attempts++;
+                if (window.google?.accounts?.id) {
+                    updateStatus('Google SDK ready! Initializing...', 'green');
+                    initializeGoogle();
+                } else if (attempts > 30) {
+                    updateStatus('Error: Google SDK not available after 3 seconds', 'red');
+                } else {
+                    setTimeout(checkGoogle, 100);
+                }
+            };
+            checkGoogle();
+        };
+        
+        script.onerror = () => {
+            updateStatus('Error: Failed to load Google script', 'red');
+        };
+        
+        document.head.appendChild(script);
+        
+        function initializeGoogle() {
+            try {
+                window.google.accounts.id.initialize({
+                    client_id: '715647564219-ebiebv3t4dhnj7gdkn1v9n0arbt579v6.apps.googleusercontent.com',
+                    callback: (response) => {
+                        console.log('Google login success:', response);
+                        updateStatus('Login successful!', 'green');
+                    },
+                    auto_select: false,
+                    cancel_on_tap_outside: true,
+                    ux_mode: 'popup'
+                });
+                
+                window.google.accounts.id.renderButton(
+                    document.getElementById('google-button'),
+                    {
+                        theme: 'outline',
+                        size: 'large',
+                        text: 'signin_with',
+                        shape: 'rectangular',
+                        width: 300
+                    }
+                );
+                
+                updateStatus('Google Sign-In button rendered!', 'green');
+            } catch (error) {
+                updateStatus('Error initializing Google: ' + error.message, 'red');
+                console.error('Google initialization error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
