@@ -152,6 +152,10 @@ const Login: React.FC = () => {
             </div>
           </div>
 
+          <div className="mt-4">
+            <SimpleGoogleLogin />
+          </div>
+
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">

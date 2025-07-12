@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const GOOGLE_CLIENT_ID = '715647564219-ebiebv3t4dhnj7gdkn1v9n0arbt579v6.apps.googleusercontent.com';
 
@@ -8,6 +10,8 @@ const SimpleGoogleLogin: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout>();
+  const { setUser } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setStatus('loading');
@@ -92,27 +96,43 @@ const SimpleGoogleLogin: React.FC = () => {
 
   const handleCredentialResponse = async (response: any) => {
     try {
-      toast.success('Google login successful! (Demo mode - backend integration disabled)');
-      console.log('Google credential received:', response.credential);
+      const loadingToast = toast.loading('Signing in with Google...');
       
-      // For now, just show success - you can integrate with backend later
-      // Simulate login success
-      const userData = {
-        name: 'Demo User',
-        email: 'demo@gmail.com',
-        id: 'google_demo_user'
-      };
-      
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('token', 'demo_google_token');
-      
-      // Redirect to home
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 1500);
-      
+      // Send the credential to our backend
+      const apiResponse = await fetch(`${process.env.REACT_APP_API_URL}/auth/google`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          credential: response.credential
+        })
+      });
+
+      const data = await apiResponse.json();
+
+      if (apiResponse.ok) {
+        // Store user data and token
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // Update auth context
+        setUser(data.user);
+        
+        toast.dismiss(loadingToast);
+        toast.success(`Welcome back, ${data.user.name}!`);
+        
+        // Navigate to home page
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      } else {
+        toast.dismiss(loadingToast);
+        toast.error(data.error || 'Google login failed');
+      }
     } catch (error) {
-      toast.error('Login failed: ' + (error as Error).message);
+      toast.error('Google login failed: ' + (error as Error).message);
+      console.error('Google login error:', error);
     }
   };
 
