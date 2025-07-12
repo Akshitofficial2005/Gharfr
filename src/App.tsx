@@ -16,7 +16,6 @@ import CleanHome from './pages/CleanHome';
 import Landing from './pages/Landing';
 import Search from './pages/Search';
 import Login from './pages/Login';
-import WorkingLogin from './pages/WorkingLogin';
 import Register from './pages/Register';
 import WorkingRegister from './pages/WorkingRegister';
 import CreatePGWithImages from './pages/CreatePGWithImages';
@@ -91,7 +90,6 @@ function App() {
                   <Route path="/landing" element={<Landing />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/login" element={<Login />} />
-                  <Route path="/working-login" element={<WorkingLogin />} />
                   <Route path="/register" element={<Register />} />
                   <Route path="/working-register" element={<WorkingRegister />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />

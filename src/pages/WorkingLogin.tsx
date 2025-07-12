@@ -140,25 +140,6 @@ const WorkingLogin: React.FC = () => {
             </Link>
           </p>
         </div>
-
-        {/* Quick Login for Testing */}
-        <div className="mt-6 pt-6 border-t border-gray-200">
-          <p className="text-sm text-gray-500 mb-3">Quick Login (for testing):</p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setFormData({ email: 'admin@gharapp.com', password: 'admin123' })}
-              className="text-xs bg-gray-100 px-3 py-2 rounded hover:bg-gray-200"
-            >
-              Admin Login
-            </button>
-            <button
-              onClick={() => setFormData({ email: 'owner@gharapp.com', password: 'owner123' })}
-              className="text-xs bg-gray-100 px-3 py-2 rounded hover:bg-gray-200"
-            >
-              Owner Login
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
