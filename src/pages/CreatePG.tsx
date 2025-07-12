@@ -218,34 +218,50 @@ const CreatePG: React.FC = () => {
     setLoading(true);
 
     try {
-      const submitData = new FormData();
-      
-      // Append basic fields
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key !== 'amenities' && key !== 'rules' && key !== 'roomTypes' && key !== 'images') {
-          submitData.append(key, value.toString());
-        }
+      // Convert images to base64 for JSON submission (temporary solution)
+      const imagePromises = imageFiles.map(file => {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target?.result);
+          reader.readAsDataURL(file);
+        });
       });
-
-      // Append arrays as JSON strings
-      submitData.append('amenities', JSON.stringify(formData.amenities));
-      submitData.append('rules', JSON.stringify(formData.rules.filter(rule => rule.trim())));
-      submitData.append('roomTypes', JSON.stringify(formData.roomTypes));
-
-      // Append images with size validation
-      let totalSize = 0;
-      imageFiles.forEach((file) => {
-        totalSize += file.size;
-        submitData.append('images', file);
-      });
-
-      // Log payload size for debugging
-      console.log(`Total payload size: ${(totalSize / 1024 / 1024).toFixed(2)} MB`);
       
-      if (totalSize > 45 * 1024 * 1024) { // 45MB limit with buffer
-        toast.error('Images too large. Please reduce image quality or count.');
-        return;
-      }
+      const imageBase64Array = await Promise.all(imagePromises);
+      
+      // Prepare JSON data in correct schema format
+      const submitData = {
+        name: formData.name,
+        description: formData.description,
+        location: {
+          address: formData.location,
+          city: formData.location.split(',')[0]?.trim() || 'Unknown City',
+          state: formData.location.split(',')[1]?.trim() || 'Unknown State',
+          pincode: '123456' // Default pincode, should be collected from user
+        },
+        images: imageBase64Array.map((img, index) => ({
+          url: img,
+          isMain: index === 0
+        })),
+        roomTypes: formData.roomTypes.map(room => ({
+          type: room.type.toLowerCase(),
+          price: room.price,
+          deposit: Math.floor(room.price * 0.5), // Default deposit as 50% of price
+          totalRooms: Math.floor(formData.totalRooms / formData.roomTypes.length) || 1,
+          availableRooms: Math.floor(formData.availableRooms / formData.roomTypes.length) || 1
+        })),
+        amenities: {
+          wifi: formData.amenities.includes('wifi'),
+          food: formData.amenities.includes('food'),
+          parking: formData.amenities.includes('parking'),
+          security: formData.amenities.includes('security'),
+          gym: false,
+          ac: false,
+          laundry: false,
+          powerBackup: false
+        },
+        rules: formData.rules.filter(rule => rule.trim())
+      };
 
       // Debug before API call
       const token = localStorage.getItem('token');
@@ -259,7 +275,13 @@ const CreatePG: React.FC = () => {
       }
 
       console.log('Creating PG with API call...');
-      await pgAPI.createPG(submitData);
+      console.log('Auth headers will include:', {
+        token: token ? 'Present' : 'Missing',
+        tokenPreview: token ? token.substring(0, 20) + '...' : 'N/A'
+      });
+      
+      const result = await pgAPI.createPG(submitData);
+      console.log('PG creation result:', result);
       toast.success('PG listing created successfully!');
       navigate('/owner-dashboard');
     } catch (error) {

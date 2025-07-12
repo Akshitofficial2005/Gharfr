@@ -38,9 +38,12 @@ const AdminPGApproval: React.FC = () => {
 
   const fetchPendingPGs = async () => {
     try {
+      console.log('Fetching pending PGs...');
       const response = await adminAPI.getAllPGs(1, 50, 'pending');
-      setPendingPGs(response.pgs);
+      console.log('PGs response:', response);
+      setPendingPGs(response.pgs || []);
     } catch (error) {
+      console.error('Error fetching pending PGs:', error);
       toast.error('Failed to fetch pending PGs');
     } finally {
       setLoading(false);
