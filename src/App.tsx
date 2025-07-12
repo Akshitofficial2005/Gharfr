@@ -22,6 +22,7 @@ import WorkingRegister from './pages/WorkingRegister';
 import CreatePGWithImages from './pages/CreatePGWithImages';
 import CompleteBooking from './pages/CompleteBooking';
 import ForgotPassword from './components/Auth/ForgotPassword';
+import ResetPassword from './components/Auth/ResetPassword';
 import PGDetails from './pages/PGDetails';
 import Profile from './pages/Profile';
 import Bookings from './pages/Bookings';
@@ -94,6 +95,7 @@ function App() {
                   <Route path="/register" element={<Register />} />
                   <Route path="/working-register" element={<WorkingRegister />} />
                   <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/map-test" element={<MapTest />} />
                   <Route path="/social-test" element={<SimpleGoogleLogin />} />
                   <Route path="/pg/:id" element={<PGDetails />} />
