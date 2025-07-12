@@ -9,7 +9,7 @@ import Header from './components/Header';
 import ErrorBoundary from './components/ErrorBoundary';
 import LiveChat from './components/LiveChat';
 import QuickActions from './components/QuickActions';
-import { registerServiceWorker, handleInstallPrompt } from './utils/pwa';
+// import { registerServiceWorker, handleInstallPrompt } from './utils/pwa';
 import { setupGlobalErrorHandler } from './utils/errorHandling';
 // import Footer from './components/Footer'; // Removed as requested
 import CleanHome from './pages/CleanHome';
@@ -47,7 +47,7 @@ import BookingConfirmed from './pages/BookingConfirmed';
 import ManageSubscription from './pages/ManageSubscription';
 import BookingDetails from './pages/BookingDetails';
 
-import GoogleLoginTest from './components/GoogleLoginTest';
+// import GoogleLoginTest from './components/GoogleLoginTest';
 import SimpleGoogleLogin from './components/SimpleGoogleLogin';
 import ProtectedRoute from './components/ProtectedRoute';
 
