@@ -1,6 +1,6 @@
 // Enhanced Service Worker for Ghar PG PWA
-const CACHE_NAME = 'ghar-pwa-v1';
-const STATIC_CACHE_NAME = 'ghar-static-v1';
+const CACHE_NAME = 'ghar-pwa-v2';
+const STATIC_CACHE_NAME = 'ghar-static-v2';
 
 // Cache essential files for offline functionality
 const STATIC_FILES = [
@@ -55,6 +55,13 @@ self.addEventListener('fetch', (event) => {
   // Skip Chrome extension requests
   if (event.request.url.startsWith('chrome-extension://')) return;
   
+  // Skip API requests to avoid service worker interference
+  if (event.request.url.includes('/api/') || 
+      event.request.url.includes('ghar-02ex.onrender.com') ||
+      event.request.url.includes('gharapp.com')) {
+    return; // Let the request go through normally without service worker interference
+  }
+  
   event.respondWith(
     caches.match(event.request)
       .then((response) => {
@@ -71,12 +78,14 @@ self.addEventListener('fetch', (event) => {
               return response;
             }
             
-            // Cache successful responses
-            const responseToCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
+            // Cache successful responses (only for static assets)
+            if (!event.request.url.includes('/api/')) {
+              const responseToCache = response.clone();
+              caches.open(CACHE_NAME)
+                .then((cache) => {
+                  cache.put(event.request, responseToCache);
+                });
+            }
             
             return response;
           })
