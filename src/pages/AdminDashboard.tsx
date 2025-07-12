@@ -63,6 +63,7 @@ ChartJS.register(
   ArcElement
 );
 
+// Force redeploy comment: 2025-07-12 12:00:00
 interface AdminStats {
   totalUsers: number;
   totalPGs: number;
