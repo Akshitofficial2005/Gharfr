@@ -40,13 +40,5 @@ export const getOptimizedImageUrl = (publicId: string, width?: number, height?: 
   return `${baseUrl}/${transformations}/${publicId}`;
 };
 
-// Get active amenities only
-export const getActiveAmenities = async () => {
-  try {
-    const response = await fetch('/api/amenities');
-    return await response.json();
-  } catch (error) {
-    console.error('Failed to fetch active amenities:', error);
-    return [];
-  }
-};
+// Re-export amenities API for backward compatibility
+export { amenitiesAPI } from '../services/api';

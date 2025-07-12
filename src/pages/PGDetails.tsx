@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { PG, Review } from '../types';
 import { mockPGs, mockReviews } from '../data/mockData';
-import { getActiveAmenities } from '../utils/cloudinary';
+import { amenitiesAPI } from '../services/api';
 import { socketService } from '../utils/socket';
 import { useAuth } from '../contexts/AuthContext';
 import { bookingAPI } from '../services/api';
@@ -57,7 +57,7 @@ const PGDetails: React.FC = () => {
           setReviews(mockReviews.filter(r => r.pgId === id));
           
           // Get active amenities
-          getActiveAmenities().then(amenities => {
+          amenitiesAPI.getActiveAmenities().then((amenities: any[]) => {
             setActiveAmenities(amenities);
           });
           

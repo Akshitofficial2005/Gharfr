@@ -385,4 +385,17 @@ export const adminAPI = {
   },
 };
 
+// Amenities API
+export const amenitiesAPI = {
+  getActiveAmenities: async () => {
+    try {
+      const response = await api.get('/amenities');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch active amenities:', error);
+      return [];
+    }
+  },
+};
+
 export default api;
