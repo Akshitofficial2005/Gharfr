@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { pgAPI } from '../services/api';
@@ -39,6 +39,37 @@ const CreatePG: React.FC = () => {
     rules: [],
     roomTypes: [{ type: 'Single', price: 0, capacity: 1 }]
   });
+
+  // Debug authentication status
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    console.log('CreatePG - Auth Debug:');
+    console.log('Token exists:', !!token);
+    console.log('Token preview:', token ? token.substring(0, 20) + '...' : 'No token');
+    console.log('User exists:', !!user);
+    
+    if (user) {
+      try {
+        const parsedUser = JSON.parse(user);
+        console.log('User role:', parsedUser.role);
+        console.log('User ID:', parsedUser._id || parsedUser.id);
+        
+        if (parsedUser.role !== 'owner' && parsedUser.role !== 'admin') {
+          console.log('⚠️ User does not have owner/admin role');
+          toast.error('You need to be an owner or admin to create PG listings');
+          navigate('/login');
+        }
+      } catch (e) {
+        console.error('Error parsing user from localStorage:', e);
+        navigate('/login');
+      }
+    } else {
+      console.log('⚠️ No user found in localStorage');
+      navigate('/login');
+    }
+  }, [navigate]);
 
   const amenityOptions = [
     { id: 'wifi', label: 'Wi-Fi', icon: Wifi },
@@ -160,6 +191,18 @@ const CreatePG: React.FC = () => {
         submitData.append('images', file);
       });
 
+      // Debug before API call
+      const token = localStorage.getItem('token');
+      const user = localStorage.getItem('user');
+      console.log('PG Submit - Auth status:');
+      console.log('Token exists:', !!token);
+      console.log('User exists:', !!user);
+      if (user) {
+        const parsedUser = JSON.parse(user);
+        console.log('User role for submission:', parsedUser.role);
+      }
+
+      console.log('Creating PG with API call...');
       await pgAPI.createPG(submitData);
       toast.success('PG listing created successfully!');
       navigate('/owner-dashboard');
