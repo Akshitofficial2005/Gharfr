@@ -37,19 +37,10 @@ const OwnerLogin: React.FC = () => {
         toast.error(response.message || 'Login failed');
       }
     } catch (error: any) {
-      toast.error(error.message || 'Invalid credentials. Try demo account.');
+      toast.error(error.message || 'Invalid credentials');
     } finally {
       setLoading(false);
     }
-  };
-
-  const demoAccounts = [
-    { email: 'owner@demo.com', password: 'demo123', name: 'Demo Owner' },
-    { email: 'pgowner@ghar.com', password: 'owner123', name: 'Sample PG Owner' },
-  ];
-
-  const handleDemoLogin = (email: string, password: string) => {
-    setFormData({ email, password });
   };
 
   return (
@@ -77,23 +68,6 @@ const OwnerLogin: React.FC = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-          {/* Demo Accounts */}
-          <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-700 mb-3">Demo Accounts:</h3>
-            <div className="space-y-2">
-              {demoAccounts.map((account, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleDemoLogin(account.email, account.password)}
-                  className="w-full text-left px-3 py-2 text-xs bg-gray-50 hover:bg-gray-100 rounded-md transition-colors"
-                >
-                  <div className="font-medium">{account.name}</div>
-                  <div className="text-gray-600">{account.email}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
