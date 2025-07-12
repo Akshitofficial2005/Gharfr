@@ -22,6 +22,34 @@ interface PGForm {
   }>;
 }
 
+// Image compression utility
+const compressImage = (file: File, maxWidth = 1200, quality = 0.8): Promise<File> => {
+  return new Promise((resolve) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    const img = new Image();
+    
+    img.onload = () => {
+      // Calculate new dimensions
+      const ratio = Math.min(maxWidth / img.width, maxWidth / img.height);
+      canvas.width = img.width * ratio;
+      canvas.height = img.height * ratio;
+      
+      // Draw and compress
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        const compressedFile = new File([blob!], file.name, {
+          type: 'image/jpeg',
+          lastModified: Date.now(),
+        });
+        resolve(compressedFile);
+      }, 'image/jpeg', quality);
+    };
+    
+    img.src = URL.createObjectURL(file);
+  });
+};
+
 const CreatePG: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -97,13 +125,31 @@ const CreatePG: React.FC = () => {
     }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length + imageFiles.length > 10) {
       toast.error('Maximum 10 images allowed');
       return;
     }
-    setImageFiles(prev => [...prev, ...files]);
+
+    try {
+      // Compress each image before adding
+      const compressedFiles = await Promise.all(
+        files.map(file => {
+          // Only compress if file is larger than 500KB
+          if (file.size > 500000) {
+            return compressImage(file);
+          }
+          return Promise.resolve(file);
+        })
+      );
+      
+      setImageFiles(prev => [...prev, ...compressedFiles]);
+      toast.success(`${compressedFiles.length} image(s) added and compressed`);
+    } catch (error) {
+      console.error('Error compressing images:', error);
+      toast.error('Error processing images');
+    }
   };
 
   const removeImage = (index: number) => {
@@ -186,10 +232,20 @@ const CreatePG: React.FC = () => {
       submitData.append('rules', JSON.stringify(formData.rules.filter(rule => rule.trim())));
       submitData.append('roomTypes', JSON.stringify(formData.roomTypes));
 
-      // Append images
+      // Append images with size validation
+      let totalSize = 0;
       imageFiles.forEach((file) => {
+        totalSize += file.size;
         submitData.append('images', file);
       });
+
+      // Log payload size for debugging
+      console.log(`Total payload size: ${(totalSize / 1024 / 1024).toFixed(2)} MB`);
+      
+      if (totalSize > 45 * 1024 * 1024) { // 45MB limit with buffer
+        toast.error('Images too large. Please reduce image quality or count.');
+        return;
+      }
 
       // Debug before API call
       const token = localStorage.getItem('token');

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghar Auth Test Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        textarea { width: 100%; height: 100px; }
+        .token-display { word-break: break-all; font-family: monospace; background: #f8f9fa; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Ghar Authentication Test Tool</h1>
+    <p>This tool helps diagnose the 401 Unauthorized error when creating PGs.</p>
+
+    <div class="section">
+        <h3>1. Current Authentication Status</h3>
+        <div id="authStatus"></div>
+        <button onclick="checkAuth()">Check Authentication</button>
+    </div>
+
+    <div class="section">
+        <h3>2. Token Details</h3>
+        <div id="tokenDetails"></div>
+        <button onclick="analyzeToken()">Analyze Token</button>
+        <button onclick="clearAuth()">Clear Auth Data</button>
+    </div>
+
+    <div class="section">
+        <h3>3. API Test</h3>
+        <div id="apiTestResult"></div>
+        <button onclick="testAPI()">Test PG Creation API</button>
+        <button onclick="testUserAPI()">Test User Profile API</button>
+    </div>
+
+    <div class="section">
+        <h3>4. Backend Logs Simulation</h3>
+        <div id="backendLogs"></div>
+        <button onclick="simulateBackendCall()">Simulate Backend Auth Check</button>
+    </div>
+
+    <script>
+        const API_URL = 'https://ghar-02ex.onrender.com/api';
+
+        function checkAuth() {
+            const authStatus = document.getElementById('authStatus');
+            const token = localStorage.getItem('token');
+            const userStr = localStorage.getItem('user');
+            
+            let html = '<h4>Authentication Status:</h4>';
+            
+            if (!token) {
+                html += '<div class="error">❌ No token found in localStorage</div>';
+                html += '<p><strong>Solution:</strong> You need to login first</p>';
+            } else {
+                html += '<div class="success">✅ Token exists in localStorage</div>';
+                html += `<div class="token-display">Token Preview: ${token.substring(0, 50)}...</div>`;
+            }
+            
+            if (!userStr) {
+                html += '<div class="error">❌ No user data found in localStorage</div>';
+            } else {
+                try {
+                    const user = JSON.parse(userStr);
+                    html += '<div class="success">✅ User data exists</div>';
+                    html += `<p><strong>User ID:</strong> ${user._id || user.id || 'Unknown'}</p>`;
+                    html += `<p><strong>Email:</strong> ${user.email || 'Unknown'}</p>`;
+                    html += `<p><strong>Role:</strong> ${user.role || 'Unknown'}</p>`;
+                    
+                    if (user.role !== 'owner' && user.role !== 'admin') {
+                        html += '<div class="error">❌ User role is not "owner" or "admin"</div>';
+                        html += '<p><strong>Solution:</strong> User needs owner or admin role to create PGs</p>';
+                    } else {
+                        html += '<div class="success">✅ User has correct role for PG creation</div>';
+                    }
+                } catch (e) {
+                    html += '<div class="error">❌ User data is corrupted</div>';
+                    html += '<p><strong>Solution:</strong> Clear localStorage and login again</p>';
+                }
+            }
+            
+            authStatus.innerHTML = html;
+        }
+
+        function analyzeToken() {
+            const tokenDetails = document.getElementById('tokenDetails');
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                tokenDetails.innerHTML = '<div class="error">No token to analyze</div>';
+                return;
+            }
+            
+            try {
+                // Decode JWT token (just the payload, not verifying signature)
+                const parts = token.split('.');
+                if (parts.length !== 3) {
+                    tokenDetails.innerHTML = '<div class="error">Invalid token format</div>';
+                    return;
+                }
+                
+                const payload = JSON.parse(atob(parts[1]));
+                const now = Math.floor(Date.now() / 1000);
+                
+                let html = '<h4>Token Analysis:</h4>';
+                html += `<p><strong>User ID:</strong> ${payload.userId || 'Not found'}</p>`;
+                html += `<p><strong>Issued At:</strong> ${new Date(payload.iat * 1000).toLocaleString()}</p>`;
+                html += `<p><strong>Expires At:</strong> ${new Date(payload.exp * 1000).toLocaleString()}</p>`;
+                
+                if (payload.exp < now) {
+                    html += '<div class="error">❌ Token has expired</div>';
+                    html += '<p><strong>Solution:</strong> Login again to get a new token</p>';
+                } else {
+                    const timeLeft = Math.floor((payload.exp - now) / 60);
+                    html += `<div class="success">✅ Token is valid (${timeLeft} minutes remaining)</div>`;
+                }
+                
+                tokenDetails.innerHTML = html;
+            } catch (e) {
+                tokenDetails.innerHTML = '<div class="error">Error decoding token: ' + e.message + '</div>';
+            }
+        }
+
+        function clearAuth() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            alert('Authentication data cleared. Please login again.');
+        }
+
+        async function testAPI() {
+            const apiTestResult = document.getElementById('apiTestResult');
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                apiTestResult.innerHTML = '<div class="error">No token available for API test</div>';
+                return;
+            }
+            
+            try {
+                apiTestResult.innerHTML = '<div class="warning">Testing API...</div>';
+                
+                const response = await fetch(`${API_URL}/pgs`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: 'Test PG',
+                        location: 'Test Location',
+                        pricePerMonth: 5000,
+                        description: 'Test Description'
+                    })
+                });
+                
+                const data = await response.text();
+                
+                if (response.status === 401) {
+                    apiTestResult.innerHTML = '<div class="error">❌ 401 Unauthorized - Token is invalid or expired</div>';
+                } else if (response.status === 403) {
+                    apiTestResult.innerHTML = '<div class="error">❌ 403 Forbidden - User does not have permission</div>';
+                } else if (response.ok) {
+                    apiTestResult.innerHTML = '<div class="success">✅ API call successful</div>';
+                } else {
+                    apiTestResult.innerHTML = `<div class="error">❌ API error: ${response.status} - ${data}</div>`;
+                }
+                
+                apiTestResult.innerHTML += `<p><strong>Response Status:</strong> ${response.status}</p>`;
+                apiTestResult.innerHTML += `<p><strong>Response:</strong> ${data}</p>`;
+                
+            } catch (error) {
+                apiTestResult.innerHTML = `<div class="error">❌ Network error: ${error.message}</div>`;
+            }
+        }
+
+        async function testUserAPI() {
+            const apiTestResult = document.getElementById('apiTestResult');
+            const token = localStorage.getItem('token');
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    apiTestResult.innerHTML = '<div class="success">✅ User profile API works</div>';
+                    apiTestResult.innerHTML += `<p>Current user: ${data.name} (${data.role})</p>`;
+                } else {
+                    apiTestResult.innerHTML = '<div class="error">❌ User profile API failed</div>';
+                }
+            } catch (error) {
+                apiTestResult.innerHTML = `<div class="error">❌ Profile API error: ${error.message}</div>`;
+            }
+        }
+
+        function simulateBackendCall() {
+            const backendLogs = document.getElementById('backendLogs');
+            const token = localStorage.getItem('token');
+            
+            let html = '<h4>Simulated Backend Auth Process:</h4>';
+            
+            if (!token) {
+                html += '<div class="error">1. ❌ No Authorization header found</div>';
+                html += '<div class="error">2. ❌ Returning 401: No token provided</div>';
+            } else {
+                html += '<div class="success">1. ✅ Authorization header found</div>';
+                html += '<div class="success">2. ✅ Token extracted from Bearer header</div>';
+                
+                try {
+                    const parts = token.split('.');
+                    const payload = JSON.parse(atob(parts[1]));
+                    const now = Math.floor(Date.now() / 1000);
+                    
+                    if (payload.exp < now) {
+                        html += '<div class="error">3. ❌ Token verification failed (expired)</div>';
+                        html += '<div class="error">4. ❌ Returning 401: Invalid token</div>';
+                    } else {
+                        html += '<div class="success">3. ✅ Token verified successfully</div>';
+                        html += '<div class="success">4. ✅ User found in database</div>';
+                        html += '<div class="success">5. ✅ User authenticated</div>';
+                        
+                        const userStr = localStorage.getItem('user');
+                        if (userStr) {
+                            const user = JSON.parse(userStr);
+                            if (user.role === 'owner' || user.role === 'admin') {
+                                html += '<div class="success">6. ✅ User has correct role</div>';
+                                html += '<div class="success">7. ✅ Proceeding to create PG</div>';
+                            } else {
+                                html += '<div class="error">6. ❌ User role check failed</div>';
+                                html += '<div class="error">7. ❌ Returning 403: Access denied</div>';
+                            }
+                        }
+                    }
+                } catch (e) {
+                    html += '<div class="error">3. ❌ Token verification failed (invalid format)</div>';
+                    html += '<div class="error">4. ❌ Returning 401: Invalid token</div>';
+                }
+            }
+            
+            backendLogs.innerHTML = html;
+        }
+
+        // Auto-check on page load
+        window.onload = function() {
+            checkAuth();
+            analyzeToken();
+        };
+    </script>
+</body>
+</html>
