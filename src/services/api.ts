@@ -22,13 +22,8 @@ api.interceptors.request.use(
   (config) => {
     console.log('API Request:', config.method?.toUpperCase(), config.baseURL + config.url);
     const token = localStorage.getItem('token');
-    // Only set Authorization header if token is valid (non-null string)
-    if (token && token !== 'null' && token !== 'undefined') {
+    if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      // Remove any corrupted token
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
     }
     return config;
   },
