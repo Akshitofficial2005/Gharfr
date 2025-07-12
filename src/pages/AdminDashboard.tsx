@@ -501,7 +501,7 @@ const AdminDashboard: React.FC = () => {
             <Bell className="w-5 h-5 text-gray-400" />
           </div>
           <div className="space-y-3">
-            {systemAlerts.slice(0, 5).map((alert) => (
+            {(systemAlerts && Array.isArray(systemAlerts) && systemAlerts.length > 0) ? systemAlerts.slice(0, 5).map((alert) => (
               <div key={alert.id} className={`flex items-start space-x-3 p-3 rounded-lg ${
                 alert.type === 'error' ? 'bg-red-50' : 
                 alert.type === 'warning' ? 'bg-yellow-50' : 'bg-blue-50'
@@ -524,7 +524,12 @@ const AdminDashboard: React.FC = () => {
                   </button>
                 )}
               </div>
-            ))}
+            )) : (
+              <div className="text-center py-8 text-gray-500">
+                <Bell className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                <p className="text-sm">No system alerts</p>
+              </div>
+            )}}
           </div>
         </div>
 
@@ -665,7 +670,7 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
           <div className="space-y-4">
-            {pgs.length > 0 ? (
+            {(pgs && Array.isArray(pgs) && pgs.length > 0) ? (
               pgs.map((pg) => (
                 <div key={pg.id} className="border border-gray-200 rounded-lg p-4 admin-card-container">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 overflow-hidden">
@@ -727,7 +732,7 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
           <div className="space-y-4">
-            {users.length > 0 ? (
+            {(users && Array.isArray(users) && users.length > 0) ? (
               users.map((user) => (
                 <div key={user.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -781,7 +786,7 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
           <div className="space-y-4">
-            {bookings.length > 0 ? (
+            {(bookings && Array.isArray(bookings) && bookings.length > 0) ? (
               bookings.map((booking) => (
                 <div key={booking.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between">
@@ -842,7 +847,7 @@ const AdminDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow-md p-6">
             <h2 className="text-xl font-semibold mb-4">System Alerts</h2>
             <div className="space-y-4">
-              {systemAlerts.map((alert) => (
+              {(systemAlerts && Array.isArray(systemAlerts) && systemAlerts.length > 0) ? systemAlerts.map((alert) => (
                 <div key={alert.id} className={`border border-gray-200 rounded-lg p-4 ${
                   alert.resolved ? 'opacity-60' : ''
                 }`}>
@@ -876,7 +881,12 @@ const AdminDashboard: React.FC = () => {
                     )}
                   </div>
                 </div>
-              ))}
+              )) : (
+                <div className="text-center py-8 text-gray-500">
+                  <AlertTriangle className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                  <p className="text-sm">No system alerts</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -896,7 +906,7 @@ const AdminDashboard: React.FC = () => {
             </div>
           </div>
           <div className="space-y-4">
-            {pgs.filter(pg => pg.status === 'pending').length > 0 ? (
+            {(pgs && Array.isArray(pgs) && pgs.filter(pg => pg.status === 'pending').length > 0) ? (
               pgs.filter(pg => pg.status === 'pending').map((pg) => (
                 <div key={pg.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
