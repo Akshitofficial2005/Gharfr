@@ -1,4 +1,15 @@
 {
+  "version": 2,
+  "name": "ghar-frontend",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",
@@ -7,7 +18,13 @@
   ],
   "headers": [
     {
-      "source": "/api/(.*)",
+      "source": "/static/(.*)",
+      "headers": [
+        { "key": "cache-control", "value": "s-maxage=31536000,immutable" }
+      ]
+    },
+    {
+      "source": "/(.*)",
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },
         { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },

@@ -137,34 +137,77 @@ const AdminDashboard: React.FC = () => {
       setLoading(true);
       
       // Fetch dashboard stats
-      const statsData = await adminAPI.getDashboardStats() as AdminStats;
-      setStats(statsData);
+      try {
+        const statsData = await adminAPI.getDashboardStats() as AdminStats;
+        setStats(statsData);
+      } catch (error) {
+        console.error('Error fetching dashboard stats:', error);
+        toast.error('Failed to load dashboard stats');
+      }
 
       // Fetch PGs
-      const pgsData = await adminAPI.getAllPGs(1, 10) as { pgs: PGItem[] };
-      setPgs(pgsData.pgs || []);
+      try {
+        const pgsData = await adminAPI.getAllPGs(1, 10) as { pgs: PGItem[] };
+        setPgs(pgsData.pgs || []);
+      } catch (error) {
+        console.error('Error fetching PGs:', error);
+        toast.error('Failed to load PGs data');
+      }
 
       // Fetch users
-      const usersData = await adminAPI.getAllUsers(1, 10) as { users: UserItem[] };
-      setUsers(usersData.users || []);
+      try {
+        const usersData = await adminAPI.getAllUsers(1, 10) as { users: UserItem[] };
+        setUsers(usersData?.users || []);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        toast.error('Failed to load users data');
+        setUsers([]); // Set empty array on error
+      }
 
       // Fetch bookings
-      const bookingsData = await adminAPI.getAllBookings(1, 10) as { bookings: BookingItem[] };
-      setBookings(bookingsData.bookings || []);
+      try {
+        const bookingsData = await adminAPI.getAllBookings(1, 10) as { bookings: BookingItem[] };
+        setBookings(bookingsData?.bookings || []);
+      } catch (error) {
+        console.error('Error fetching bookings:', error);
+        toast.error('Failed to load bookings data');
+        setBookings([]);
+      }
 
       // Fetch system alerts
-      const alertsData = await adminAPI.getSystemAlerts() as { alerts: SystemAlert[] };
-      setSystemAlerts(alertsData.alerts || []);
+      try {
+        const alertsData = await adminAPI.getSystemAlerts() as { alerts: SystemAlert[] };
+        setSystemAlerts(alertsData?.alerts || []);
+      } catch (error) {
+        console.error('Error fetching system alerts:', error);
+        // Don't show toast for alerts as it's not critical
+        setSystemAlerts([]);
+      }
 
       // Fetch analytics data
-      const userAnalytics = await adminAPI.getUserGrowthAnalytics();
-      setUserGrowthData(userAnalytics);
+      try {
+        const userAnalytics = await adminAPI.getUserGrowthAnalytics();
+        setUserGrowthData(userAnalytics);
+      } catch (error) {
+        console.error('Error fetching user analytics:', error);
+        setUserGrowthData(null);
+      }
 
-      const revenueAnalytics = await adminAPI.getRevenueAnalytics();
-      setRevenueData(revenueAnalytics);
+      try {
+        const revenueAnalytics = await adminAPI.getRevenueAnalytics();
+        setRevenueData(revenueAnalytics);
+      } catch (error) {
+        console.error('Error fetching revenue analytics:', error);
+        setRevenueData(null);
+      }
 
-      const bookingAnalytics = await adminAPI.getBookingAnalytics();
-      setBookingStatusData(bookingAnalytics);
+      try {
+        const bookingAnalytics = await adminAPI.getBookingAnalytics();
+        setBookingStatusData(bookingAnalytics);
+      } catch (error) {
+        console.error('Error fetching booking analytics:', error);
+        setBookingStatusData(null);
+      }
 
     } catch (error) {
       console.error('Error fetching admin data:', error);
@@ -219,8 +262,13 @@ const AdminDashboard: React.FC = () => {
       await adminAPI.toggleUserStatus(id);
       toast.success('User status updated successfully');
       // Refresh users data
-      const usersData = await adminAPI.getAllUsers(1, 10) as { users: UserItem[] };
-      setUsers(usersData.users || []);
+      try {
+        const usersData = await adminAPI.getAllUsers(1, 10) as { users: UserItem[] };
+        setUsers(usersData?.users || []);
+      } catch (refreshError) {
+        console.error('Error refreshing users data:', refreshError);
+        // Don't show another toast, just log the error
+      }
     } catch (error) {
       console.error('Error updating user status:', error);
       toast.error('Failed to update user status');
