@@ -529,7 +529,7 @@ const AdminDashboard: React.FC = () => {
                 <Bell className="w-8 h-8 mx-auto mb-2 text-gray-300" />
                 <p className="text-sm">No system alerts</p>
               </div>
-            )}}
+            )}
           </div>
         </div>
 
