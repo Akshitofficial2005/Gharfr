@@ -316,9 +316,13 @@ const AdminDashboard: React.FC = () => {
       inactive: 'bg-gray-100 text-gray-800'
     };
 
+    // Safely handle status with null check
+    const safeStatus = status || 'unknown';
+    const formattedStatus = safeStatus.replace('_', ' ');
+
     return (
       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusStyles[status as keyof typeof statusStyles] || 'bg-gray-100 text-gray-800'}`}>
-        {status.replace('_', ' ').charAt(0).toUpperCase() + status.replace('_', ' ').slice(1)}
+        {formattedStatus.charAt(0).toUpperCase() + formattedStatus.slice(1)}
       </span>
     );
   };

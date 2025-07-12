@@ -252,7 +252,7 @@ const CreatePGWithImages: React.FC = () => {
                       onChange={handleChange}
                       className="mr-2"
                     />
-                    <span className="capitalize">{key === 'wifi' ? 'Wi-Fi' : key.replace(/([A-Z])/g, ' $1')}</span>
+                    <span className="capitalize">{key === 'wifi' ? 'Wi-Fi' : (key || '').replace(/([A-Z])/g, ' $1')}</span>
                   </label>
                 ))}
               </div>
