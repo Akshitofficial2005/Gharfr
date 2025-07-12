@@ -188,7 +188,12 @@ const AdminDashboard: React.FC = () => {
       // Fetch analytics data
       try {
         const userAnalytics = await adminAPI.getUserAnalytics();
-        setUserGrowthData(userAnalytics);
+        if (userAnalytics && userAnalytics.datasets && Array.isArray(userAnalytics.datasets)) {
+          setUserGrowthData(userAnalytics);
+        } else {
+          console.error('Invalid user analytics data received:', userAnalytics);
+          setUserGrowthData(null);
+        }
       } catch (error) {
         console.error('Error fetching user analytics:', error);
         setUserGrowthData(null);
@@ -196,7 +201,12 @@ const AdminDashboard: React.FC = () => {
 
       try {
         const revenueAnalytics = await adminAPI.getRevenueAnalytics();
-        setRevenueData(revenueAnalytics);
+        if (revenueAnalytics && revenueAnalytics.datasets && Array.isArray(revenueAnalytics.datasets)) {
+          setRevenueData(revenueAnalytics);
+        } else {
+          console.error('Invalid revenue analytics data received:', revenueAnalytics);
+          setRevenueData(null);
+        }
       } catch (error) {
         console.error('Error fetching revenue analytics:', error);
         setRevenueData(null);
@@ -204,7 +214,12 @@ const AdminDashboard: React.FC = () => {
 
       try {
         const bookingAnalytics = await adminAPI.getBookingAnalytics();
-        setBookingStatusData(bookingAnalytics);
+        if (bookingAnalytics && bookingAnalytics.datasets && Array.isArray(bookingAnalytics.datasets)) {
+          setBookingStatusData(bookingAnalytics);
+        } else {
+          console.error('Invalid booking analytics data received:', bookingAnalytics);
+          setBookingStatusData(null);
+        }
       } catch (error) {
         console.error('Error fetching booking analytics:', error);
         setBookingStatusData(null);
@@ -461,7 +476,7 @@ const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow-md p-4">
           <h3 className="text-lg font-semibold mb-2">User Growth</h3>
-          {userGrowthData ? (
+          {userGrowthData && userGrowthData.datasets && Array.isArray(userGrowthData.datasets) ? (
             <Line data={userGrowthData} options={{ responsive: true, maintainAspectRatio: false }} height={120} />
           ) : (
             <div className="h-32 flex items-center justify-center text-gray-500">Loading chart...</div>
@@ -470,7 +485,7 @@ const AdminDashboard: React.FC = () => {
         
         <div className="bg-white rounded-lg shadow-md p-4">
           <h3 className="text-lg font-semibold mb-2">Booking Status</h3>
-          {bookingStatusData ? (
+          {bookingStatusData && bookingStatusData.datasets && Array.isArray(bookingStatusData.datasets) ? (
             <Doughnut data={bookingStatusData} options={{ responsive: true, maintainAspectRatio: false }} height={120} />
           ) : (
             <div className="h-32 flex items-center justify-center text-gray-500">Loading chart...</div>
