@@ -28,50 +28,58 @@ const ExtraAmenities: React.FC<ExtraAmenitiesProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {amenities.map((amenity) => {
         const quantity = selectedAmenities[amenity.name] || 0;
         
         return (
           <div
-            key={amenity.id}
-            className="flex items-center justify-between p-4 border rounded-lg hover:border-primary-300 transition-colors"
+            key={amenity.id || amenity.name}
+            className="flex items-center justify-between p-3 border rounded-lg hover:border-primary-300 transition-colors bg-gray-50"
           >
-            <div className="flex-1">
-              <h3 className="font-medium text-gray-900">{amenity.name}</h3>
-              <p className="text-sm text-gray-600 mt-1">{amenity.description}</p>
-              <p className="text-lg font-semibold text-primary-600 mt-2">
-                ₹{amenity.monthlyCharge.toLocaleString()}/month
-              </p>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center space-x-2">
+                <span className="text-lg">{amenity.icon || '🏠'}</span>
+                <div>
+                  <h4 className="font-medium text-gray-900 text-sm">{amenity.name}</h4>
+                  <p className="text-xs text-gray-600 truncate">{amenity.description}</p>
+                </div>
+              </div>
             </div>
             
             <div className="flex items-center space-x-3">
-              <button
-                onClick={() => handleQuantityChange(amenity.name, -1)}
-                disabled={quantity === 0}
-                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Minus className="h-4 w-4" />
-              </button>
-              
-              <span className="w-8 text-center font-medium">
-                {quantity}
+              <span className="text-sm font-semibold text-primary-600">
+                ₹{amenity.monthlyCharge.toLocaleString()}/mo
               </span>
               
-              <button
-                onClick={() => handleQuantityChange(amenity.name, 1)}
-                className="w-8 h-8 rounded-full border border-primary-300 bg-primary-50 flex items-center justify-center hover:bg-primary-100 text-primary-600"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handleQuantityChange(amenity.name, -1)}
+                  disabled={quantity === 0}
+                  className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Minus className="h-3 w-3" />
+                </button>
+                
+                <span className="w-6 text-center text-sm font-medium">
+                  {quantity}
+                </span>
+                
+                <button
+                  onClick={() => handleQuantityChange(amenity.name, 1)}
+                  className="w-6 h-6 rounded-full border border-primary-300 bg-primary-50 flex items-center justify-center hover:bg-primary-100 text-primary-600"
+                >
+                  <Plus className="h-3 w-3" />
+                </button>
+              </div>
             </div>
           </div>
         );
       })}
       
       {amenities.length === 0 && (
-        <div className="text-center py-8 text-gray-500">
-          <p>No additional amenities available for this property.</p>
+        <div className="text-center py-4 text-gray-500">
+          <p className="text-sm">No additional amenities available.</p>
         </div>
       )}
     </div>

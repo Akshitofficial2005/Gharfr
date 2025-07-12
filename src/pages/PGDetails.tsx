@@ -188,7 +188,7 @@ const PGDetails: React.FC = () => {
       // Calculate total amount including extra amenities
       const basePrice = selectedRoom?.price || 0;
       const extraAmenitiesTotal = Object.entries(selectedAmenities).reduce((total, [amenityName, quantity]) => {
-        const amenity = pg?.extraAmenities?.find((a: any) => a.name === amenityName);
+        const amenity = activeAmenities?.find((a: any) => a.name === amenityName);
         return total + (amenity?.monthlyCharge || 0) * quantity;
       }, 0);
       
@@ -344,7 +344,7 @@ const PGDetails: React.FC = () => {
                         // Calculate total amount (first month + security deposit)
                         const totalAmount = selectedRoom.price + selectedRoom.deposit + 
                           Object.entries(selectedAmenities).reduce((total, [amenityName, quantity]) => {
-                            const amenity = pg?.extraAmenities?.find((a: any) => a.name === amenityName);
+                            const amenity = activeAmenities?.find((a: any) => a.name === amenityName);
                             return total + (amenity?.monthlyCharge || 0) * quantity;
                           }, 0);
                         
@@ -387,32 +387,6 @@ const PGDetails: React.FC = () => {
                   ))}
               </div>
             </div>
-
-            {/* Extra Amenities */}
-            {pg.extraAmenities && pg.extraAmenities.length > 0 && (
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">Additional Amenities</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {pg.extraAmenities.map(amenity => (
-                    <div key={amenity.id} className="p-4 bg-white rounded-lg border">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-semibold text-gray-900">{amenity.name}</h3>
-                          <p className="text-sm text-gray-600 mt-1">{amenity.description}</p>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-lg font-bold text-primary-600">
-                            ₹{amenity.monthlyCharge}
-                          </span>
-                          <div className="text-xs text-gray-500">/month</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* Room Types */}
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Room Types & Pricing</h2>
@@ -528,13 +502,13 @@ const PGDetails: React.FC = () => {
                         <div className="text-sm text-gray-600">Extra amenities:</div>
                         <div className="text-lg font-semibold text-orange-600">
                           +₹{Object.entries(selectedAmenities).reduce((total, [amenityName, quantity]) => {
-                            const amenity = pg?.extraAmenities?.find((a: any) => a.name === amenityName);
+                            const amenity = activeAmenities?.find((a: any) => a.name === amenityName);
                             return total + (amenity?.monthlyCharge || 0) * quantity;
                           }, 0).toLocaleString()}/month
                         </div>
                         <div className="text-xl font-bold text-gray-900 border-t pt-2 mt-2">
                           Total: ₹{(selectedRoom.price + Object.entries(selectedAmenities).reduce((total, [amenityName, quantity]) => {
-                            const amenity = pg?.extraAmenities?.find((a: any) => a.name === amenityName);
+                            const amenity = activeAmenities?.find((a: any) => a.name === amenityName);
                             return total + (amenity?.monthlyCharge || 0) * quantity;
                           }, 0)).toLocaleString()}/month
                         </div>
@@ -646,38 +620,40 @@ const PGDetails: React.FC = () => {
               
               {/* Extra Amenities Selection */}
               {activeAmenities && activeAmenities.length > 0 && (
-                <div className="mt-6 border-t pt-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Select Additional Amenities
-                  </h3>
-                  <ExtraAmenities 
-                    amenities={activeAmenities}
-                    selectedAmenities={selectedAmenities}
-                    onAmenityChange={setSelectedAmenities}
-                  />
+                <div className="mt-4 border-t pt-4">
+                  <h4 className="text-md font-medium text-gray-900 mb-3">
+                    Additional Amenities
+                  </h4>
+                  <div className="max-h-60 overflow-y-auto">
+                    <ExtraAmenities 
+                      amenities={activeAmenities}
+                      selectedAmenities={selectedAmenities}
+                      onAmenityChange={setSelectedAmenities}
+                    />
+                  </div>
                   
                   {Object.keys(selectedAmenities).length > 0 && (
-                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                      <div className="text-sm font-medium text-blue-900 mb-2">
-                        Extra Amenities Summary:
+                    <div className="mt-3 p-2 bg-blue-50 rounded-md">
+                      <div className="text-xs font-medium text-blue-900 mb-1">
+                        Selected Amenities:
                       </div>
                       {Object.entries(selectedAmenities).map(([amenityName, quantity]) => {
-                        const amenity = pg.extraAmenities.find(a => a.name === amenityName);
+                        const amenity = activeAmenities.find(a => a.name === amenityName);
                         if (!amenity || quantity === 0) return null;
                         return (
-                          <div key={amenityName} className="flex justify-between text-sm text-blue-800">
+                          <div key={amenityName} className="flex justify-between text-xs text-blue-800">
                             <span>{amenityName} × {quantity}</span>
-                            <span>₹{(amenity.monthlyCharge * quantity).toLocaleString()}/month</span>
+                            <span>₹{(amenity.monthlyCharge * quantity).toLocaleString()}/mo</span>
                           </div>
                         );
                       })}
-                      <div className="border-t border-blue-200 mt-2 pt-2 flex justify-between font-semibold text-blue-900">
-                        <span>Extra Amenities Total:</span>
+                      <div className="border-t border-blue-200 mt-1 pt-1 flex justify-between font-medium text-xs text-blue-900">
+                        <span>Total Extra:</span>
                         <span>
                           ₹{Object.entries(selectedAmenities).reduce((total, [amenityName, quantity]) => {
-                            const amenity = pg.extraAmenities.find(a => a.name === amenityName);
+                            const amenity = activeAmenities.find(a => a.name === amenityName);
                             return total + (amenity?.monthlyCharge || 0) * quantity;
-                          }, 0).toLocaleString()}/month
+                          }, 0).toLocaleString()}/mo
                         </span>
                       </div>
                     </div>
