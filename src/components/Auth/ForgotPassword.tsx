@@ -16,19 +16,35 @@ const ForgotPassword: React.FC = () => {
 
     try {
       console.log('Making API call to forgot password endpoint...');
+      console.log('API Base URL:', process.env.REACT_APP_API_URL);
+      
+      // First, try to wake up the backend with a health check
+      try {
+        await api.get('/health');
+        console.log('Backend is awake');
+      } catch (healthError) {
+        console.log('Backend might be sleeping, proceeding anyway...');
+      }
+      
       const response = await api.post('/auth/forgot-password', { email });
       console.log('API call successful:', response);
       setSent(true);
     } catch (error: any) {
       console.error('API call failed:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response,
+        request: error.request
+      });
+      
       if (error.response?.data?.message) {
         setError(error.response.data.message);
       } else if (error.response) {
-        setError(`Server error: ${error.response.status}`);
+        setError(`Server error: ${error.response.status} - ${error.response.statusText}`);
       } else if (error.request) {
-        setError('Network error: Unable to connect to server. Please check if the backend is running.');
+        setError('Network error: Unable to connect to server. Please check your internet connection and try again.');
       } else {
-        setError('Network error. Please try again.');
+        setError(`Request error: ${error.message}`);
       }
     } finally {
       setLoading(false);
