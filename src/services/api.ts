@@ -36,9 +36,36 @@ api.interceptors.request.use(
 // Add response interceptor to handle errors
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Unauthorized - clear token and redirect to login
+  async (error) => {
+    const originalRequest = error.config;
+    
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      
+      try {
+        // Try to refresh token
+        const token = localStorage.getItem('token');
+        if (token) {
+          const refreshResponse = await axios.post(
+            `${API_BASE_URL}/auth/refresh-token`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          
+          const refreshData = refreshResponse.data as { token: string; user: any };
+          const newToken = refreshData.token;
+          localStorage.setItem('token', newToken);
+          localStorage.setItem('user', JSON.stringify(refreshData.user));
+          
+          // Retry original request with new token
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return api(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error('Token refresh failed:', refreshError);
+      }
+      
+      // If refresh fails, clear storage and redirect
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
