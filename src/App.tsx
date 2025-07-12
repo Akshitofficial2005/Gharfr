@@ -14,6 +14,8 @@ import { setupGlobalErrorHandler } from './utils/errorHandling';
 // import Footer from './components/Footer'; // Removed as requested
 import CleanHome from './pages/CleanHome';
 import Landing from './pages/Landing';
+import AnimatedHomePage from './pages/AnimatedHomePage';
+import TermsAndConditions from './pages/TermsAndConditions';
 import Search from './pages/Search';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -85,9 +87,12 @@ function App() {
                   <Header />
                   <main className="flex-1 transition-all duration-300 ease-in-out">
                     <Routes>
-                  <Route path="/" element={<Landing />} />
+                  <Route path="/" element={<AnimatedHomePage />} />
                   <Route path="/home" element={<CleanHome />} />
                   <Route path="/landing" element={<Landing />} />
+                  <Route path="/animated" element={<AnimatedHomePage />} />
+                  <Route path="/terms" element={<TermsAndConditions />} />
+                  <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
                   <Route path="/search" element={<Search />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />

@@ -73,6 +73,13 @@ const Header: React.FC = () => {
             >
               List PG
             </Link>
+            <Link
+              to="/terms-and-conditions"
+              onClick={() => hapticFeedback.light()}
+              className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 hover:bg-primary-50 hover:scale-105 active:scale-95"
+            >
+              Terms
+            </Link>
             {user?.role === 'owner' && (
               <Link
                 to="/owner/dashboard"
@@ -202,6 +209,36 @@ const Header: React.FC = () => {
                 }}
               >
                 Search PGs
+              </Link>
+              <Link
+                to="/about"
+                className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium transition-all duration-200 hover:bg-primary-50 hover:scale-105 active:scale-95"
+                onClick={() => {
+                  hapticFeedback.light();
+                  setIsMenuOpen(false);
+                }}
+              >
+                About
+              </Link>
+              <Link
+                to="/list-pg"
+                className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium transition-all duration-200 hover:bg-primary-50 hover:scale-105 active:scale-95"
+                onClick={() => {
+                  hapticFeedback.light();
+                  setIsMenuOpen(false);
+                }}
+              >
+                List PG
+              </Link>
+              <Link
+                to="/terms-and-conditions"
+                className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium transition-all duration-200 hover:bg-primary-50 hover:scale-105 active:scale-95"
+                onClick={() => {
+                  hapticFeedback.light();
+                  setIsMenuOpen(false);
+                }}
+              >
+                Terms & Conditions
               </Link>
               {user?.role === 'owner' && (
                 <>

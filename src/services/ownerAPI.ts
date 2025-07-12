@@ -117,54 +117,61 @@ export const ownerAPIService = {
   // PG Management
   createPG: async (data: PGListingData): Promise<ApiResponse> => {
     try {
-      const response = await ownerAPI.post('/create-pg', data);
-      return response.data as ApiResponse;
-    } catch (error) {
-      // Mock response for demo
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Transform the frontend form data to match backend PG model
+      const pgData = {
+        name: data.pgName,
+        description: data.description,
+        location: {
+          address: data.address,
+          city: data.city,
+          state: data.state,
+          pincode: data.pincode,
+        },
+        roomTypes: data.roomTypes.map(room => ({
+          type: room.type,
+          price: parseInt(room.price),
+          deposit: parseInt(room.deposit),
+          totalRooms: parseInt(room.available),
+          availableRooms: parseInt(room.available),
+        })),
+        amenities: data.amenities,
+        rules: data.rules.filter(rule => rule.trim() !== ''),
+        images: data.images.map((img, index) => ({
+          url: img,
+          isMain: index === 0
+        }))
+      };
+
+      const response = await axios.post(`${API_BASE_URL}/pgs`, pgData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('ownerToken')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
       return {
         success: true,
-        message: 'PG listing created successfully!',
-        pgId: Date.now().toString()
+        message: 'PG listing created successfully! It will be reviewed by admin before going live.',
+        pgId: (response.data as any).pg._id
       };
+    } catch (error: any) {
+      console.error('Error creating PG:', error);
+      throw new Error(error.response?.data?.message || 'Failed to create PG listing');
     }
   },
 
   getMyPGs: async (): Promise<ApiResponse> => {
     try {
-      const response = await ownerAPI.get('/my-pgs');
+      // Use the correct PG endpoint for owners
+      const response = await axios.get(`${API_BASE_URL}/pgs/owner/my-pgs`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('ownerToken')}`
+        }
+      });
       return response.data as ApiResponse;
     } catch (error) {
-      // Mock response for demo
-      return {
-        success: true,
-        pgs: [
-          {
-            id: '1',
-            name: 'Green Valley PG',
-            location: 'Koramangala, Bangalore',
-            totalRooms: 20,
-            occupiedRooms: 18,
-            monthlyRevenue: 270000,
-            rating: 4.5,
-            status: 'active',
-            inquiries: 12,
-            bookings: 5
-          },
-          {
-            id: '2',
-            name: 'Sunrise Hostel',
-            location: 'HSR Layout, Bangalore',
-            totalRooms: 15,
-            occupiedRooms: 12,
-            monthlyRevenue: 180000,
-            rating: 4.2,
-            status: 'active',
-            inquiries: 8,
-            bookings: 3
-          }
-        ]
-      };
+      console.error('Error fetching owner PGs:', error);
+      throw error;
     }
   },
 
