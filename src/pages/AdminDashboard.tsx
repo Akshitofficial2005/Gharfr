@@ -48,6 +48,7 @@ import {
   Tooltip,
   Legend,
   ArcElement,
+  Filler,
 } from 'chart.js';
 import { adminAPI } from '../services/api';
 
@@ -60,7 +61,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
+  Filler
 );
 
 // Force redeploy comment: 2025-07-12 12:00:00
