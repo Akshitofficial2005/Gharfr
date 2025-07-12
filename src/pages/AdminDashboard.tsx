@@ -186,7 +186,7 @@ const AdminDashboard: React.FC = () => {
 
       // Fetch analytics data
       try {
-        const userAnalytics = await adminAPI.getUserGrowthAnalytics();
+        const userAnalytics = await adminAPI.getUserAnalytics();
         setUserGrowthData(userAnalytics);
       } catch (error) {
         console.error('Error fetching user analytics:', error);
@@ -339,7 +339,7 @@ const AdminDashboard: React.FC = () => {
                 <p>${stats.totalUsers}</p>
               </div>
               <div class="stat-item">
-                <h3>Total PGs</h3>
+                <h3>Total Properties</h3>
                 <p>${stats.totalPGs}</p>
               </div>
               <div class="stat-item">

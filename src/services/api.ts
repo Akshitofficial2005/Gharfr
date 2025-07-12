@@ -366,23 +366,23 @@ export const adminAPI = {
 
   // Analytics endpoints
   getRevenueAnalytics: async () => {
-    const response = await api.get('/admin/analytics/revenue');
+    const response = await api.get('/admin/analytics-revenue');
     return response.data;
   },
 
-  getUserGrowthAnalytics: async () => {
-    const response = await api.get('/admin/analytics/users');
+  getUserAnalytics: async () => {
+    const response = await api.get('/admin/analytics-users');
     return response.data;
   },
 
   getBookingAnalytics: async () => {
-    const response = await api.get('/admin/analytics/bookings');
+    const response = await api.get('/admin/analytics-bookings');
     return response.data;
   },
 
   // System management
   getSystemAlerts: async () => {
-    const response = await api.get('/admin/system/alerts');
+    const response = await api.get('/admin/system-alerts');
     return response.data;
   },
 
