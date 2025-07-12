@@ -344,7 +344,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div class="stat-item">
                 <h3>Total Revenue</h3>
-                <p>₹${stats.revenue.toLocaleString()}</p>
+                <p>₹{stats.revenue !== undefined && stats.revenue !== null ? stats.revenue.toLocaleString() : '0'}</p>
               </div>
               <div class="stat-item">
                 <h3>Pending Approvals</h3>
@@ -407,7 +407,7 @@ const AdminDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Users</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.totalUsers.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.totalUsers !== undefined && stats.totalUsers !== null ? stats.totalUsers.toLocaleString() : '0'}</p>
               <p className="text-xs text-green-600 mt-1">Active platform users</p>
             </div>
             <div className="p-3 bg-blue-100 rounded-lg">
@@ -433,7 +433,7 @@ const AdminDashboard: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Platform Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">₹{stats.revenue.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">₹{stats.revenue !== undefined && stats.revenue !== null ? stats.revenue.toLocaleString() : '0'}</p>
               <p className="text-xs text-green-600 mt-1">Total earnings</p>
             </div>
             <div className="p-3 bg-yellow-100 rounded-lg">
@@ -497,7 +497,7 @@ const AdminDashboard: React.FC = () => {
                 }`}></div>
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">{alert.message}</p>
-                  <p className="text-xs text-gray-500">{new Date(alert.timestamp).toLocaleString()}</p>
+                  <p className="text-xs text-gray-500">{alert.timestamp ? new Date(alert.timestamp).toLocaleString() : ''}</p>
                 </div>
                 {!alert.resolved && (
                   <button 
@@ -776,7 +776,7 @@ const AdminDashboard: React.FC = () => {
                       </div>
                       <p className="text-sm text-gray-600">User: {booking.userName}</p>
                       <p className="text-sm text-gray-600">PG: {booking.pgName}</p>
-                      <p className="text-sm text-gray-600">Amount: ₹{booking.totalAmount.toLocaleString()}</p>
+                  <p className="text-sm text-gray-600">Amount: ₹{booking.totalAmount !== undefined && booking.totalAmount !== null ? booking.totalAmount.toLocaleString() : '0'}</p>
                       <p className="text-xs text-gray-500">
                         {booking.checkIn} to {booking.checkOut}
                       </p>
@@ -846,7 +846,7 @@ const AdminDashboard: React.FC = () => {
                         )}
                       </div>
                       <p className="text-xs text-gray-500">
-                        {new Date(alert.timestamp).toLocaleString()}
+                        {alert.timestamp ? new Date(alert.timestamp).toLocaleString() : ''}
                       </p>
                     </div>
                     {!alert.resolved && (
@@ -890,7 +890,7 @@ const AdminDashboard: React.FC = () => {
                         {getStatusBadge(pg.status)}
                       </div>
                       <p className="text-sm text-gray-600 truncate">Location: {pg.location}</p>
-                      <p className="text-sm text-gray-600">Price: ₹{pg.price?.toLocaleString()}/month</p>
+                  <p className="text-sm text-gray-600">Price: ₹{pg.price !== undefined && pg.price !== null ? pg.price.toLocaleString() : '0'}/month</p>
                       <p className="text-xs text-gray-500">
                         Submitted: {new Date(pg.createdAt).toLocaleDateString()}
                       </p>
