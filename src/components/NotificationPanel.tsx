@@ -7,8 +7,26 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api
 
 interface NotificationResult {
   success: boolean;
-  email?: { success: boolean; messageId?: string; error?: string };
-  sms?: { success: boolean; service?: string; error?: string };
+  message?: string;
+  results?: {
+    total: number;
+    sent: number;
+    failed: number;
+    details: Array<{
+      userId: string;
+      email: string;
+      phone?: string;
+      status: string;
+      message: string;
+    }>;
+  };
+  result?: {
+    type: string;
+    to: string;
+    subject?: string;
+    status: string;
+    details?: any;
+  };
 }
 
 const NotificationPanel: React.FC = () => {
@@ -46,12 +64,12 @@ const NotificationPanel: React.FC = () => {
         { promoContent: promoForm.promoContent },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('adminToken')}`
+            Authorization: `Bearer ${localStorage.getItem('adminToken') || localStorage.getItem('token')}`
           }
         }
       );
       
-      setResult(response.data.results);
+      setResult(response.data as NotificationResult);
       setPromoForm({ userId: '', promoContent: '' });
     } catch (error: any) {
       console.error('Promo notification error:', error);
@@ -70,16 +88,24 @@ const NotificationPanel: React.FC = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/notifications/test`,
-        testForm,
+        `${API_BASE_URL}/notifications/send-test`,
+        { 
+          testType: testForm.email ? 'email' : 'sms',
+          testData: {
+            to: testForm.email || testForm.phone,
+            phone: testForm.phone,
+            subject: 'Test Notification from Ghar App',
+            message: testForm.testMessage || 'This is a test notification'
+          }
+        },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('adminToken')}`
+            Authorization: `Bearer ${localStorage.getItem('adminToken') || localStorage.getItem('token')}`
           }
         }
       );
       
-      setResult(response.data.results);
+      setResult(response.data as NotificationResult);
       setTestForm({ email: '', phone: '', testMessage: '' });
     } catch (error: any) {
       console.error('Test notification error:', error);
@@ -99,10 +125,10 @@ const NotificationPanel: React.FC = () => {
     try {
       const response = await axios.post(
         `${API_BASE_URL}/notifications/send-bulk-promo`,
-        bulkForm,
+        { promoContent: bulkForm.promoContent },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('adminToken')}`
+            Authorization: `Bearer ${localStorage.getItem('adminToken') || localStorage.getItem('token')}`
           }
         }
       );
@@ -129,20 +155,26 @@ const NotificationPanel: React.FC = () => {
         Notification Results
       </h4>
       
-      {result.email && (
+      {result.message && (
         <div className="mb-2">
-          <span className="text-sm font-medium">Email:</span>
-          <span className={`ml-2 text-sm ${result.email.success ? 'text-green-600' : 'text-red-600'}`}>
-            {result.email.success ? '✅ Sent successfully' : `❌ Failed: ${result.email.error}`}
-          </span>
+          <span className="text-sm text-gray-600">{result.message}</span>
         </div>
       )}
       
-      {result.sms && (
-        <div>
-          <span className="text-sm font-medium">SMS:</span>
-          <span className={`ml-2 text-sm ${result.sms.success ? 'text-green-600' : 'text-red-600'}`}>
-            {result.sms.success ? `✅ Sent via ${result.sms.service}` : `❌ Failed: ${result.sms.error}`}
+      {result.results && (
+        <div className="mb-2">
+          <span className="text-sm font-medium">Bulk Results:</span>
+          <div className="text-sm text-gray-600">
+            Total: {result.results.total}, Sent: {result.results.sent}, Failed: {result.results.failed}
+          </div>
+        </div>
+      )}
+      
+      {result.result && (
+        <div className="mb-2">
+          <span className="text-sm font-medium">Test Result:</span>
+          <span className={`ml-2 text-sm ${result.result.status === 'sent' ? 'text-green-600' : 'text-red-600'}`}>
+            {result.result.status === 'sent' ? '✅ Sent successfully' : `❌ Failed`}
           </span>
         </div>
       )}
