@@ -187,7 +187,7 @@ const AdminDashboard: React.FC = () => {
 
       // Fetch analytics data
       try {
-        const userAnalytics = await adminAPI.getUserAnalytics();
+        const userAnalytics = await adminAPI.getUserAnalytics() as any;
         if (userAnalytics && userAnalytics.datasets && Array.isArray(userAnalytics.datasets)) {
           setUserGrowthData(userAnalytics);
         } else {
@@ -200,7 +200,7 @@ const AdminDashboard: React.FC = () => {
       }
 
       try {
-        const revenueAnalytics = await adminAPI.getRevenueAnalytics();
+        const revenueAnalytics = await adminAPI.getRevenueAnalytics() as any;
         if (revenueAnalytics && revenueAnalytics.datasets && Array.isArray(revenueAnalytics.datasets)) {
           setRevenueData(revenueAnalytics);
         } else {
@@ -213,7 +213,7 @@ const AdminDashboard: React.FC = () => {
       }
 
       try {
-        const bookingAnalytics = await adminAPI.getBookingAnalytics();
+        const bookingAnalytics = await adminAPI.getBookingAnalytics() as any;
         if (bookingAnalytics && bookingAnalytics.datasets && Array.isArray(bookingAnalytics.datasets)) {
           setBookingStatusData(bookingAnalytics);
         } else {
