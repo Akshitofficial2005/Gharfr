@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             // Use Promise.race with timeout instead of AbortController
             try {
               const timeoutPromise = new Promise((_, reject) => {
-                setTimeout(() => reject(new Error('Request timeout')), 3000);
+                setTimeout(() => reject(new Error('Request timeout')), 15000);
               });
               
               const fetchPromise = fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/auth/me`, {
@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       // Use Promise.race with timeout to prevent hanging
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Registration request timed out')), 5000);
+        setTimeout(() => reject(new Error('Registration request timed out')), 15000);
       });
       
       const registerPromise = apiService.register(userData);

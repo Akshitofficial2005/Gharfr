@@ -129,7 +129,7 @@ export const authAPI = {
       
       // Use a timeout to prevent hanging
       const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Request timeout')), 5000);
+        setTimeout(() => reject(new Error('Request timeout')), 15000);
       });
       
       const responsePromise = api.post('/auth/google', { credential });
