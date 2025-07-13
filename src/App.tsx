@@ -20,7 +20,6 @@ import Search from './pages/Search';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import WorkingRegister from './pages/WorkingRegister';
-import CreatePGWithImages from './pages/CreatePGWithImages';
 import CompleteBooking from './pages/CompleteBooking';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import ResetPassword from './components/Auth/ResetPassword';
@@ -172,14 +171,6 @@ function App() {
                     element={
                       <ProtectedRoute allowedRoles={['owner']}>
                         <CreatePG />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/owner/create-pg-with-images" 
-                    element={
-                      <ProtectedRoute allowedRoles={['owner']}>
-                        <CreatePGWithImages />
                       </ProtectedRoute>
                     } 
                   />
