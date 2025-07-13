@@ -516,7 +516,7 @@ const AdminDashboard: React.FC = () => {
                   alert.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
                 }`}></div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">{alert.message}</p>
+                  <p className="text-sm font-medium text-gray-900">{typeof alert.message === 'string' ? alert.message : 'N/A'}</p>
                   <p className="text-xs text-gray-500">{alert.timestamp ? new Date(alert.timestamp).toLocaleString() : ''}</p>
                 </div>
                 {!alert.resolved && (
@@ -680,12 +680,12 @@ const AdminDashboard: React.FC = () => {
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 overflow-hidden">
                     <div className="flex-1 min-w-0 admin-card-content">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-gray-900 truncate">{pg.name}</h3>
+                        <h3 className="font-semibold text-gray-900 truncate">{typeof pg.name === 'string' ? pg.name : 'N/A'}</h3>
                         {getStatusBadge(pg.status)}
                       </div>
                       <p className="text-sm text-gray-600 truncate">Location: {typeof pg.location === 'string' ? pg.location : JSON.stringify(pg.location)}</p>
                       <p className="text-sm text-gray-600">Price: ₹{pg.price?.toLocaleString()}/month</p>
-                      <p className="text-xs text-gray-500 truncate">Owner: {pg.owner}</p>
+                      <p className="text-xs text-gray-500 truncate">Owner: {typeof pg.owner === 'string' ? pg.owner : 'N/A'}</p>
                     </div>
                     <div className="admin-action-buttons">
                       <button 
@@ -799,8 +799,8 @@ const AdminDashboard: React.FC = () => {
                         <h3 className="font-semibold text-gray-900">Booking #{booking.id}</h3>
                         {getStatusBadge(booking.status)}
                       </div>
-                      <p className="text-sm text-gray-600">User: {booking.userName}</p>
-                      <p className="text-sm text-gray-600">PG: {booking.pgName}</p>
+                      <p className="text-sm text-gray-600">User: {typeof booking.userName === 'string' ? booking.userName : 'N/A'}</p>
+                      <p className="text-sm text-gray-600">PG: {typeof booking.pgName === 'string' ? booking.pgName : 'N/A'}</p>
                   <p className="text-sm text-gray-600">Amount: ₹{booking.totalAmount !== undefined && booking.totalAmount !== null ? booking.totalAmount.toLocaleString() : '0'}</p>
                       <p className="text-xs text-gray-500">
                         {booking.checkIn} to {booking.checkOut}
@@ -916,7 +916,7 @@ const AdminDashboard: React.FC = () => {
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-gray-900 truncate">{pg.name}</h3>
+                        <h3 className="font-semibold text-gray-900 truncate">{typeof pg.name === 'string' ? pg.name : 'N/A'}</h3>
                         {getStatusBadge(pg.status)}
                       </div>
                       <p className="text-sm text-gray-600 truncate">Location: {typeof pg.location === 'string' ? pg.location : JSON.stringify(pg.location)}</p>
