@@ -226,7 +226,7 @@ const EnhancedBookingModal: React.FC<EnhancedBookingModalProps> = ({
                     </div>
                     <div>
                       <span className="text-gray-600">Furnishing</span>
-                      <p className="font-medium capitalize">{(selectedRoomType.furnishing || 'not-specified').replace('-', ' ')}</p>
+                      <p className="font-medium capitalize">{selectedRoomType.furnishing.replace('-', ' ')}</p>
                     </div>
                     <div>
                       <span className="text-gray-600">Available</span>

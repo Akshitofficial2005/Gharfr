@@ -85,9 +85,37 @@ const CreatePG: React.FC = () => {
         console.log('User ID:', parsedUser._id || parsedUser.id);
         
         if (parsedUser.role !== 'owner' && parsedUser.role !== 'admin') {
-          console.log('⚠️ User does not have owner/admin role');
-          toast.error('You need to be an owner or admin to create PG listings');
-          navigate('/login');
+          console.log('⚠️ User does not have owner/admin role, attempting to update...');
+          
+          // Try to automatically update role to owner
+          const token = localStorage.getItem('token');
+          if (token) {
+            fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/auth/update-role`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ role: 'owner' })
+            })
+            .then(response => response.json())
+            .then(result => {
+              if (result.user) {
+                localStorage.setItem('user', JSON.stringify(result.user));
+                console.log('✅ Role updated to owner');
+                toast.success('Role updated! You can now create PG listings.');
+                window.location.reload();
+              }
+            })
+            .catch(error => {
+              console.error('Role update failed:', error);
+              toast.error('You need to be an owner or admin to create PG listings');
+              navigate('/login');
+            });
+          } else {
+            toast.error('You need to be an owner or admin to create PG listings');
+            navigate('/login');
+          }
         }
       } catch (e) {
         console.error('Error parsing user from localStorage:', e);

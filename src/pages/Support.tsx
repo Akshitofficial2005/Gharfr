@@ -467,7 +467,7 @@ const Support: React.FC = () => {
                     </div>
                     <div className="flex space-x-2">
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(ticket.status)}`}>
-                        {(ticket.status || 'unknown').replace('_', ' ').toUpperCase()}
+                        {ticket.status.replace('_', ' ').toUpperCase()}
                       </span>
                       <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(ticket.priority)}`}>
                         {ticket.priority.toUpperCase()}
