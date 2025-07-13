@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>401 Token Fix Test</title>
+</head>
+<body>
+    <h1>🔧 JWT Token Fix Test</h1>
+    
+    <div id="test-results">
+        <h2>Testing with Admin Credentials:</h2>
+        <p><strong>Email:</strong> agrawalakshit36@gmail.com</p>
+        <p><strong>Password:</strong> akshit@Mayank2003</p>
+        
+        <button onclick="testFullFlow()">🧪 Test Complete Flow</button>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        async function testFullFlow() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>⏳ Running Complete Test...</h3>';
+            
+            try {
+                // Step 1: Login to get fresh token
+                console.log('🔐 Step 1: Logging in...');
+                const loginResponse = await fetch('http://localhost:5001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: 'agrawalakshit36@gmail.com',
+                        password: 'akshit@Mayank2003'
+                    })
+                });
+                
+                const loginData = await loginResponse.json();
+                
+                if (!loginResponse.ok) {
+                    results.innerHTML = `
+                        <h3>❌ Login Failed</h3>
+                        <p><strong>Status:</strong> ${loginResponse.status}</p>
+                        <p><strong>Error:</strong> ${loginData.message}</p>
+                    `;
+                    return;
+                }
+                
+                console.log('✅ Login successful!', loginData);
+                
+                // Step 2: Check token expiration
+                const token = loginData.token;
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const expiry = new Date(payload.exp * 1000);
+                const now = new Date();
+                
+                console.log('📅 Token expires:', expiry);
+                console.log('📅 Current time:', now);
+                
+                // Step 3: Try creating a PG with fresh token
+                console.log('🏠 Step 2: Testing PG creation...');
+                const pgResponse = await fetch('http://localhost:5001/api/pgs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': \`Bearer \${token}\`
+                    },
+                    body: JSON.stringify({
+                        name: 'Test PG ' + Date.now(),
+                        location: {
+                            city: 'Test City',
+                            area: 'Test Area'
+                        },
+                        price: 15000,
+                        description: 'Test PG created by admin'
+                    })
+                });
+                
+                const pgData = await pgResponse.json();
+                
+                if (pgResponse.ok) {
+                    results.innerHTML = \`
+                        <h3>✅ COMPLETE SUCCESS!</h3>
+                        <p><strong>✅ Login:</strong> Successful</p>
+                        <p><strong>✅ Token:</strong> Fresh and valid</p>
+                        <p><strong>✅ User Role:</strong> \${loginData.user?.role}</p>
+                        <p><strong>✅ PG Creation:</strong> Successful</p>
+                        <p><strong>🏠 PG ID:</strong> \${pgData.pg?.id}</p>
+                        <p><strong>📅 Token Expires:</strong> \${expiry.toLocaleString()}</p>
+                        <hr>
+                        <h4>🎯 SOLUTION: Log out and log back in!</h4>
+                        <p>Your old tokens were expired. Fresh login fixes the 401 errors.</p>
+                    \`;
+                } else {
+                    results.innerHTML = \`
+                        <h3>⚠️ Login OK, PG Creation Failed</h3>
+                        <p><strong>✅ Login:</strong> Successful</p>
+                        <p><strong>❌ PG Creation:</strong> \${pgResponse.status} - \${pgData.message}</p>
+                        <p><strong>🔍 Possible Issue:</strong> Role permissions or server logic</p>
+                        <p><strong>👤 User Role:</strong> \${loginData.user?.role}</p>
+                    \`;
+                }
+                
+            } catch (error) {
+                results.innerHTML = \`
+                    <h3>❌ Test Failed</h3>
+                    <p><strong>Error:</strong> \${error.message}</p>
+                \`;
+            }
+        }
+    </script>
+</body>
+</html>

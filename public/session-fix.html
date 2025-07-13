@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Clear Session & Test</title>
+</head>
+<body>
+    <h1>🧹 Clear Session & Test Login</h1>
+    
+    <button onclick="clearAll()">🗑️ Clear All Session Data</button>
+    <button onclick="testLogin()">🔐 Test Fresh Login</button>
+    
+    <div id="result"></div>
+
+    <script>
+        function clearAll() {
+            // Clear all storage
+            localStorage.clear();
+            sessionStorage.clear();
+            
+            // Clear cookies for localhost
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            
+            document.getElementById('result').innerHTML = '✅ All session data cleared!';
+        }
+        
+        async function testLogin() {
+            const result = document.getElementById('result');
+            result.innerHTML = '⏳ Testing fresh login...';
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'agrawalakshit36@gmail.com',
+                        password: 'akshit@Mayank2003'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const token = data.token;
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const expiry = new Date(payload.exp * 1000);
+                    
+                    // Store the fresh token
+                    localStorage.setItem('token', token);
+                    
+                    result.innerHTML = `
+                        <h3>✅ Fresh Login Success!</h3>
+                        <p><strong>User:</strong> ${data.user.email}</p>
+                        <p><strong>Role:</strong> ${data.user.role}</p>
+                        <p><strong>Token expires:</strong> ${expiry.toLocaleString()}</p>
+                        <p><strong>Status:</strong> Ready for PG creation!</p>
+                        <hr>
+                        <p>🎯 <strong>Now go back to the main app and try creating a PG!</strong></p>
+                    `;
+                } else {
+                    result.innerHTML = `<h3>❌ Login Failed: ${data.message}</h3>`;
+                }
+            } catch (error) {
+                result.innerHTML = `<h3>❌ Error: ${error.message}</h3>`;
+            }
+        }
+    </script>
+</body>
+</html>
