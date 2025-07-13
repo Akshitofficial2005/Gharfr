@@ -48,6 +48,7 @@ import {
   Tooltip,
   Legend,
   ArcElement,
+  Filler,
 } from 'chart.js';
 import { adminAPI } from '../services/api';
 
@@ -60,7 +61,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
+  Filler
 );
 
 // Force redeploy comment: 2025-07-12 12:00:00
@@ -683,7 +685,7 @@ const AdminDashboard: React.FC = () => {
                         <h3 className="font-semibold text-gray-900 truncate">{pg.name}</h3>
                         {getStatusBadge(pg.status)}
                       </div>
-                      <p className="text-sm text-gray-600 truncate">Location: {pg.location}</p>
+                      <p className="text-sm text-gray-600 truncate">Location: {typeof pg.location === 'string' ? pg.location : JSON.stringify(pg.location)}</p>
                       <p className="text-sm text-gray-600">Price: ₹{pg.price?.toLocaleString()}/month</p>
                       <p className="text-xs text-gray-500 truncate">Owner: {pg.owner}</p>
                     </div>
@@ -742,11 +744,11 @@ const AdminDashboard: React.FC = () => {
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-gray-900 truncate">{user.name}</h3>
+                        <h3 className="font-semibold text-gray-900 truncate">{typeof user.name === 'string' ? user.name : 'N/A'}</h3>
                         {getStatusBadge(user.isActive ? 'active' : 'inactive')}
                         <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded whitespace-nowrap">{user.role}</span>
                       </div>
-                      <p className="text-sm text-gray-600 truncate">{user.email}</p>
+                      <p className="text-sm text-gray-600 truncate">{typeof user.email === 'string' ? user.email : 'N/A'}</p>
                       <p className="text-xs text-gray-500">Joined: {new Date(user.createdAt).toLocaleDateString()}</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -919,7 +921,7 @@ const AdminDashboard: React.FC = () => {
                         <h3 className="font-semibold text-gray-900 truncate">{pg.name}</h3>
                         {getStatusBadge(pg.status)}
                       </div>
-                      <p className="text-sm text-gray-600 truncate">Location: {pg.location}</p>
+                      <p className="text-sm text-gray-600 truncate">Location: {typeof pg.location === 'string' ? pg.location : JSON.stringify(pg.location)}</p>
                   <p className="text-sm text-gray-600">Price: ₹{pg.price !== undefined && pg.price !== null ? pg.price.toLocaleString() : '0'}/month</p>
                       <p className="text-xs text-gray-500">
                         Submitted: {new Date(pg.createdAt).toLocaleDateString()}
