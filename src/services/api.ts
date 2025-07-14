@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getValidToken, isValidTokenFormat } from '../utils/tokenRefresher';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
 
@@ -17,13 +18,18 @@ const api = axios.create({
   },
 });
 
-// Add request interceptor to include auth token
+// Add request interceptor to include auth token with validation
 api.interceptors.request.use(
   (config) => {
     console.log('API Request:', config.method?.toUpperCase(), config.baseURL + config.url);
+    // Get token synchronously from localStorage
     const token = localStorage.getItem('token');
-    if (token) {
+    if (token && isValidTokenFormat(token)) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log('Using validated token:', token.substring(0, 15) + '...');
+    } else {
+      console.warn('No valid token available for request');
+      delete config.headers.Authorization;
     }
     return config;
   },

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghar Token Diagnostic Tool</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #2563eb;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 10px;
+    }
+    .card {
+      background-color: #f9fafb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .error {
+      color: #dc2626;
+      background-color: #fee2e2;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .success {
+      color: #16a34a;
+      background-color: #dcfce7;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .warning {
+      color: #ca8a04;
+      background-color: #fef9c3;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    pre {
+      background-color: #f1f5f9;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .hidden {
+      display: none;
+    }
+    .action-btn {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ghar Token Diagnostic Tool</h1>
+  
+  <div class="card">
+    <h2>Token Status</h2>
+    <div id="token-status">Checking token status...</div>
+    <div id="token-details" class="hidden">
+      <h3>Token Details</h3>
+      <pre id="token-payload"></pre>
+    </div>
+    <button id="check-token" class="action-btn">Check Token</button>
+    <button id="fix-token" class="action-btn hidden">Fix Token Issues</button>
+  </div>
+
+  <div class="card">
+    <h2>API Connection Test</h2>
+    <div id="api-status">Click to test API connection</div>
+    <button id="test-api" class="action-btn">Test API Connection</button>
+  </div>
+
+  <div class="card">
+    <h2>User Role Check</h2>
+    <div id="role-status">Click to check your user role</div>
+    <button id="check-role" class="action-btn">Check Role</button>
+  </div>
+
+  <div class="card">
+    <h2>Quick Fix Actions</h2>
+    <button id="logout-btn" class="action-btn">Logout (Clear Token)</button>
+    <button id="go-login" class="action-btn">Go to Login Page</button>
+  </div>
+
+  <script>
+    // Configuration
+    const API_BASE_URL = localStorage.getItem('apiBaseUrl') || 'https://ghar-02ex.onrender.com/api';
+    
+    // DOM Elements
+    const tokenStatusEl = document.getElementById('token-status');
+    const tokenDetailsEl = document.getElementById('token-details');
+    const tokenPayloadEl = document.getElementById('token-payload');
+    const apiStatusEl = document.getElementById('api-status');
+    const roleStatusEl = document.getElementById('role-status');
+    const checkTokenBtn = document.getElementById('check-token');
+    const fixTokenBtn = document.getElementById('fix-token');
+    const testApiBtn = document.getElementById('test-api');
+    const checkRoleBtn = document.getElementById('check-role');
+    const logoutBtn = document.getElementById('logout-btn');
+    const goLoginBtn = document.getElementById('go-login');
+
+    // Helper Functions
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function formatDate(timestamp) {
+      return new Date(timestamp * 1000).toLocaleString();
+    }
+
+    function isTokenExpired(decodedToken) {
+      if (!decodedToken || !decodedToken.exp) return true;
+      const currentTime = Math.floor(Date.now() / 1000);
+      return decodedToken.exp < currentTime;
+    }
+
+    // Check Token Status
+    async function checkToken() {
+      tokenStatusEl.innerHTML = 'Checking token...';
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        tokenStatusEl.innerHTML = '<div class="error">No token found! You need to login.</div>';
+        fixTokenBtn.classList.remove('hidden');
+        return;
+      }
+
+      // Check if token is a Google token
+      if (token.startsWith('google_')) {
+        tokenStatusEl.innerHTML = '<div class="warning">Using Google fallback token. This may not work with all API endpoints.</div>';
+        return;
+      }
+
+      // Check token format
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        tokenStatusEl.innerHTML = '<div class="error">Invalid token format! Token should have 3 parts separated by dots.</div>';
+        fixTokenBtn.classList.remove('hidden');
+        return;
+      }
+
+      // Decode token
+      const decoded = parseJwt(token);
+      if (!decoded) {
+        tokenStatusEl.innerHTML = '<div class="error">Could not decode token! Token may be corrupted.</div>';
+        fixTokenBtn.classList.remove('hidden');
+        return;
+      }
+
+      // Check expiration
+      if (isTokenExpired(decoded)) {
+        tokenStatusEl.innerHTML = '<div class="error">Token has expired! You need to login again.</div>';
+        fixTokenBtn.classList.remove('hidden');
+      } else {
+        const expiresIn = decoded.exp - Math.floor(Date.now() / 1000);
+        const days = Math.floor(expiresIn / 86400);
+        const hours = Math.floor((expiresIn % 86400) / 3600);
+        
+        tokenStatusEl.innerHTML = `<div class="success">Token is valid! Expires in ${days} days and ${hours} hours.</div>`;
+      }
+
+      // Show token details
+      tokenDetailsEl.classList.remove('hidden');
+      tokenPayloadEl.textContent = JSON.stringify(decoded, null, 2);
+    }
+
+    // Test API Connection
+    async function testApiConnection() {
+      apiStatusEl.innerHTML = 'Testing API connection...';
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/health`);
+        const data = await response.json();
+        
+        if (response.ok) {
+          apiStatusEl.innerHTML = `<div class="success">API is online! Version: ${data.version || 'Unknown'}</div>`;
+        } else {
+          apiStatusEl.innerHTML = `<div class="error">API returned error: ${data.message || 'Unknown error'}</div>`;
+        }
+      } catch (error) {
+        apiStatusEl.innerHTML = `<div class="error">Failed to connect to API: ${error.message}</div>`;
+      }
+    }
+
+    // Check User Role
+    async function checkUserRole() {
+      roleStatusEl.innerHTML = 'Checking user role...';
+      
+      const user = localStorage.getItem('user');
+      if (!user) {
+        roleStatusEl.innerHTML = '<div class="error">No user data found! You need to login.</div>';
+        return;
+      }
+
+      try {
+        const userData = JSON.parse(user);
+        const role = userData.role;
+        
+        if (role === 'owner' || role === 'admin') {
+          roleStatusEl.innerHTML = `<div class="success">You have the ${role} role. You can create PG listings.</div>`;
+        } else {
+          roleStatusEl.innerHTML = `<div class="warning">Your role is '${role}'. Only 'owner' or 'admin' roles can create PG listings.</div>`;
+        }
+      } catch (error) {
+        roleStatusEl.innerHTML = `<div class="error">Failed to parse user data: ${error.message}</div>`;
+      }
+    }
+
+    // Fix Token Issues
+    function fixTokenIssues() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      alert('Token cleared! You will be redirected to the login page.');
+      window.location.href = '/login';
+    }
+
+    // Event Listeners
+    checkTokenBtn.addEventListener('click', checkToken);
+    fixTokenBtn.addEventListener('click', fixTokenIssues);
+    testApiBtn.addEventListener('click', testApiConnection);
+    checkRoleBtn.addEventListener('click', checkUserRole);
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      alert('Logged out successfully! Token cleared.');
+      checkToken();
+    });
+    goLoginBtn.addEventListener('click', () => {
+      window.location.href = '/login';
+    });
+
+    // Initial check
+    checkToken();
+  </script>
+</body>
+</html>

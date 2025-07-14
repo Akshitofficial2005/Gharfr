@@ -58,6 +58,7 @@ export interface PGListingData {
   totalRooms: string;
   pgType: 'boys' | 'girls' | 'co-ed';
   furnishing: string;
+  pricePerMonth: string;
   roomTypes: Array<{
     type: string;
     price: string;
@@ -116,47 +117,59 @@ export const ownerAPIService = {
 
   // PG Management
   createPG: async (data: PGListingData): Promise<ApiResponse> => {
-    try {
-      // Transform the frontend form data to match backend PG model
-      const pgData = {
+      // Debug: print payload before sending
+      console.log('PG payload being sent:', {
         name: data.pgName,
         description: data.description,
-        location: {
-          address: data.address,
-          city: data.city,
-          state: data.state,
-          pincode: data.pincode,
-        },
-        roomTypes: data.roomTypes.map(room => ({
-          type: room.type,
-          price: parseInt(room.price),
-          deposit: parseInt(room.deposit),
-          totalRooms: parseInt(room.available),
-          availableRooms: parseInt(room.available),
-        })),
-        amenities: data.amenities,
-        rules: data.rules.filter(rule => rule.trim() !== ''),
-        images: data.images.map((img, index) => ({
-          url: img,
-          isMain: index === 0
-        }))
+        location: `${data.address}, ${data.city}, ${data.state} - ${data.pincode}`,
+        pricePerMonth: data.pricePerMonth,
+        totalRooms: data.totalRooms,
+        availableRooms: data.totalRooms
+      });
+    try {
+      // Validate required fields
+      if (!data.pgName || !data.address || !data.pricePerMonth) {
+        throw new Error('PG Name, Address, and Price per Month are required.');
+      }
+      if (isNaN(parseInt(data.pricePerMonth))) {
+        throw new Error('Price per Month must be a valid number.');
+      }
+      // Transform to match backend expectations
+      const pgData = {
+        name: data.pgName.trim(),
+        description: data.description || '',
+        location: { city: data.city || data.address },
+        price: parseInt(data.pricePerMonth),
+        totalRooms: parseInt(data.totalRooms) || 1,
+        availableRooms: parseInt(data.totalRooms) || 1,
+        contactNumber: data.ownerPhone || '',
+        amenities: Array.isArray(data.amenities) ? data.amenities : Object.keys(data.amenities).filter(key => data.amenities[key]),
+        rules: Array.isArray(data.rules) ? data.rules.filter(rule => rule.trim() !== '') : [],
+        images: Array.isArray(data.images) ? data.images : []
       };
 
       const response = await axios.post(`${API_BASE_URL}/pgs`, pgData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('ownerToken')}`,
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         }
       });
       
+      console.log('API Response:', response.data);
+      
+      // Handle different response formats
+      const respData = response.data as any;
+      const pgId = respData?.data?._id || respData?.id || respData?._id || respData?.pgId || 'unknown';
+      
       return {
         success: true,
-        message: 'PG listing created successfully! It will be reviewed by admin before going live.',
-        pgId: (response.data as any).pg._id
+        message: 'PG listing created successfully!',
+        pgId: pgId,
+        data: respData
       };
     } catch (error: any) {
       console.error('Error creating PG:', error);
-      throw new Error(error.response?.data?.message || 'Failed to create PG listing');
+      throw new Error(error.message || error.response?.data?.message || 'Failed to create PG listing');
     }
   },
 

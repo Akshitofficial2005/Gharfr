@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { getAuthHeaders } from '../utils/tokenRefresher';
+import { pgAPI } from '../services/api';
 
 const CreatePG: React.FC = () => {
   const navigate = useNavigate();
@@ -88,42 +90,48 @@ const CreatePG: React.FC = () => {
     setLoading(true);
 
     try {
-      // Get token
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('Please login to create PG listing');
-        navigate('/login');
-        return;
-      }
-
-      // Prepare data
+      // Format data to match production backend expectations
       const submitData = {
-        ...formData,
-        pricePerMonth: Number(formData.pricePerMonth),
-        totalRooms: Number(formData.totalRooms),
-        availableRooms: Number(formData.availableRooms)
+        name: formData.name,
+        location: formData.location, // Send as simple string, not object
+        price: formData.pricePerMonth || 1000,
+        description: formData.description,
+        // Add these required fields based on production error
+        owner: 'temp-owner', // Will be overridden by backend auth
+        // Keep existing fields for backward compatibility
+        pricePerMonth: formData.pricePerMonth,
+        amenities: formData.amenities,
+        images: formData.images,
+        rules: formData.rules.filter(rule => rule.trim()),
+        totalRooms: formData.totalRooms,
+        availableRooms: formData.availableRooms,
+        contactNumber: formData.contactNumber
       };
 
       console.log('Submitting PG data:', submitData);
 
-      // Make API call
-      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/pgs`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(submitData)
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        toast.success('PG listing created successfully!');
-        navigate('/');
-      } else {
-        console.error('API Error:', result);
-        toast.error(result.message || 'Failed to create PG listing');
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5001/api'}/pgs`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(submitData)
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('PG created successfully:', data);
+          toast.success('PG listing created successfully!');
+          navigate('/');
+        } else {
+          const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+          console.error('API Error:', errorData);
+          toast.error(errorData.message || 'Failed to create PG listing');
+        }
+      } catch (fetchError) {
+        console.error('Fetch Error:', fetchError);
+        toast.error('Network error: Could not connect to the server');
       }
     } catch (error) {
       console.error('Error creating PG:', error);

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ghar API Test Tool</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #2563eb;
+      border-bottom: 2px solid #e5e7eb;
+      padding-bottom: 10px;
+    }
+    .card {
+      background-color: #f9fafb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    .error {
+      color: #dc2626;
+      background-color: #fee2e2;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .success {
+      color: #16a34a;
+      background-color: #dcfce7;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .warning {
+      color: #ca8a04;
+      background-color: #fef9c3;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    pre {
+      background-color: #f1f5f9;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      font-family: monospace;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+      margin-bottom: 10px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    input[type="text"], input[type="url"] {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #d1d5db;
+    }
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .tab.active {
+      border-bottom: 2px solid #2563eb;
+      color: #2563eb;
+      font-weight: 500;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .flex {
+      display: flex;
+      gap: 10px;
+    }
+    .flex-col {
+      flex-direction: column;
+    }
+    .w-1\/2 {
+      width: 50%;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ghar API Test Tool</h1>
+  
+  <div class="tabs">
+    <div class="tab active" data-tab="pg-create">Create PG</div>
+    <div class="tab" data-tab="token-test">Token Test</div>
+    <div class="tab" data-tab="api-health">API Health</div>
+    <div class="tab" data-tab="custom-request">Custom Request</div>
+  </div>
+  
+  <div id="pg-create" class="tab-content active">
+    <div class="card">
+      <h2>Create PG Test</h2>
+      <p>Test creating a PG listing with the current API</p>
+      
+      <div class="form-group">
+        <label for="pg-name">PG Name:</label>
+        <input type="text" id="pg-name" value="Test PG Listing">
+      </div>
+      
+      <div class="form-group">
+        <label for="pg-location">Location:</label>
+        <input type="text" id="pg-location" value="Mumbai">
+      </div>
+      
+      <div class="form-group">
+        <label for="pg-price">Price:</label>
+        <input type="text" id="pg-price" value="12000">
+      </div>
+      
+      <div class="form-group">
+        <label for="pg-data">Full PG Data (JSON):</label>
+        <textarea id="pg-data">{
+  "name": "Test PG Listing",
+  "description": "A comfortable PG for students and professionals",
+  "location": { "city": "Mumbai" },
+  "price": 12000,
+  "totalRooms": 10,
+  "availableRooms": 5,
+  "contactNumber": "9876543210",
+  "amenities": ["WiFi", "AC", "Food Included"],
+  "images": ["https://example.com/image1.jpg"],
+  "rules": ["No smoking", "No pets"]
+}</textarea>
+      </div>
+      
+      <div class="form-group">
+        <button id="create-pg-btn">Create PG</button>
+        <button id="update-pg-data">Update JSON from Fields</button>
+      </div>
+      
+      <div id="pg-create-result"></div>
+    </div>
+  </div>
+  
+  <div id="token-test" class="tab-content">
+    <div class="card">
+      <h2>Token Test</h2>
+      <p>Test your current authentication token</p>
+      
+      <div class="form-group">
+        <label for="current-token">Current Token:</label>
+        <textarea id="current-token"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <button id="load-token-btn">Load Token from Storage</button>
+        <button id="test-token-btn">Test Token</button>
+        <button id="decode-token-btn">Decode Token</button>
+      </div>
+      
+      <div id="token-test-result"></div>
+    </div>
+  </div>
+  
+  <div id="api-health" class="tab-content">
+    <div class="card">
+      <h2>API Health Check</h2>
+      <p>Check if the API is online and responding</p>
+      
+      <div class="form-group">
+        <label for="api-url">API URL:</label>
+        <input type="url" id="api-url" value="https://ghar-02ex.onrender.com/api">
+      </div>
+      
+      <div class="form-group">
+        <button id="check-health-btn">Check Health</button>
+        <button id="check-cors-btn">Test CORS</button>
+      </div>
+      
+      <div id="api-health-result"></div>
+    </div>
+  </div>
+  
+  <div id="custom-request" class="tab-content">
+    <div class="card">
+      <h2>Custom API Request</h2>
+      <p>Make a custom request to any API endpoint</p>
+      
+      <div class="form-group">
+        <label for="request-url">URL:</label>
+        <input type="url" id="request-url" value="https://ghar-02ex.onrender.com/api/pgs">
+      </div>
+      
+      <div class="form-group">
+        <label for="request-method">Method:</label>
+        <select id="request-method">
+          <option value="GET">GET</option>
+          <option value="POST">POST</option>
+          <option value="PUT">PUT</option>
+          <option value="DELETE">DELETE</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="request-headers">Headers (JSON):</label>
+        <textarea id="request-headers">{
+  "Content-Type": "application/json",
+  "Authorization": "Bearer YOUR_TOKEN_HERE"
+}</textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="request-body">Body (JSON):</label>
+        <textarea id="request-body">{
+  "name": "Custom PG",
+  "location": { "city": "Delhi" },
+  "price": 10000
+}</textarea>
+      </div>
+      
+      <div class="form-group">
+        <button id="send-request-btn">Send Request</button>
+        <button id="load-auth-header-btn">Load Auth Header</button>
+      </div>
+      
+      <div id="custom-request-result"></div>
+    </div>
+  </div>
+
+  <script>
+    // Utility functions
+    function showResult(elementId, type, message) {
+      const resultElement = document.getElementById(elementId);
+      resultElement.innerHTML = `<div class="${type}">${message}</div>`;
+    }
+    
+    function showJsonResult(elementId, type, message, data) {
+      const resultElement = document.getElementById(elementId);
+      resultElement.innerHTML = `
+        <div class="${type}">${message}</div>
+        <pre>${JSON.stringify(data, null, 2)}</pre>
+      `;
+    }
+    
+    function parseJwt(token) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+      } catch (e) {
+        return null;
+      }
+    }
+    
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        // Remove active class from all tabs and content
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // Add active class to clicked tab and corresponding content
+        tab.classList.add('active');
+        const tabId = tab.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+    
+    // Create PG functionality
+    document.getElementById('update-pg-data').addEventListener('click', () => {
+      const name = document.getElementById('pg-name').value;
+      const location = document.getElementById('pg-location').value;
+      const price = document.getElementById('pg-price').value;
+      
+      try {
+        const currentData = JSON.parse(document.getElementById('pg-data').value);
+        currentData.name = name;
+        currentData.location = { city: location };
+        currentData.price = Number(price);
+        
+        document.getElementById('pg-data').value = JSON.stringify(currentData, null, 2);
+      } catch (error) {
+        showResult('pg-create-result', 'error', `Error updating JSON: ${error.message}`);
+      }
+    });
+    
+    document.getElementById('create-pg-btn').addEventListener('click', async () => {
+      try {
+        const pgData = JSON.parse(document.getElementById('pg-data').value);
+        const apiUrl = document.getElementById('api-url').value || 'https://ghar-02ex.onrender.com/api';
+        
+        showResult('pg-create-result', 'info', 'Sending request...');
+        
+        const token = localStorage.getItem('token');
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const response = await fetch(`${apiUrl}/pgs`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(pgData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          showJsonResult('pg-create-result', 'success', 'PG created successfully!', data);
+        } else {
+          showJsonResult('pg-create-result', 'error', `Error: ${response.status} ${response.statusText}`, data);
+        }
+      } catch (error) {
+        showResult('pg-create-result', 'error', `Error: ${error.message}`);
+      }
+    });
+    
+    // Token test functionality
+    document.getElementById('load-token-btn').addEventListener('click', () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        document.getElementById('current-token').value = token;
+        showResult('token-test-result', 'info', 'Token loaded from localStorage');
+      } else {
+        document.getElementById('current-token').value = '';
+        showResult('token-test-result', 'warning', 'No token found in localStorage');
+      }
+    });
+    
+    document.getElementById('test-token-btn').addEventListener('click', async () => {
+      try {
+        const token = document.getElementById('current-token').value;
+        const apiUrl = document.getElementById('api-url').value || 'https://ghar-02ex.onrender.com/api';
+        
+        if (!token) {
+          return showResult('token-test-result', 'error', 'No token provided');
+        }
+        
+        showResult('token-test-result', 'info', 'Testing token...');
+        
+        const response = await fetch(`${apiUrl}/auth/me`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          showJsonResult('token-test-result', 'success', 'Token is valid!', data);
+        } else {
+          showJsonResult('token-test-result', 'error', `Token is invalid: ${response.status} ${response.statusText}`, data);
+        }
+      } catch (error) {
+        showResult('token-test-result', 'error', `Error: ${error.message}`);
+      }
+    });
+    
+    document.getElementById('decode-token-btn').addEventListener('click', () => {
+      try {
+        const token = document.getElementById('current-token').value;
+        
+        if (!token) {
+          return showResult('token-test-result', 'error', 'No token provided');
+        }
+        
+        const decoded = parseJwt(token);
+        
+        if (decoded) {
+          // Check if token is expired
+          const currentTime = Math.floor(Date.now() / 1000);
+          const isExpired = decoded.exp && decoded.exp < currentTime;
+          
+          let message = 'Token decoded successfully';
+          if (isExpired) {
+            message += ` (EXPIRED at ${new Date(decoded.exp * 1000).toLocaleString()})`;
+          } else if (decoded.exp) {
+            message += ` (Valid until ${new Date(decoded.exp * 1000).toLocaleString()})`;
+          }
+          
+          showJsonResult('token-test-result', isExpired ? 'warning' : 'success', message, decoded);
+        } else {
+          showResult('token-test-result', 'error', 'Invalid token format');
+        }
+      } catch (error) {
+        showResult('token-test-result', 'error', `Error decoding token: ${error.message}`);
+      }
+    });
+    
+    // API health check functionality
+    document.getElementById('check-health-btn').addEventListener('click', async () => {
+      try {
+        const apiUrl = document.getElementById('api-url').value;
+        
+        showResult('api-health-result', 'info', 'Checking API health...');
+        
+        const response = await fetch(`${apiUrl}/health`);
+        const data = await response.json();
+        
+        if (response.ok) {
+          showJsonResult('api-health-result', 'success', 'API is online!', data);
+        } else {
+          showJsonResult('api-health-result', 'error', `API returned error: ${response.status} ${response.statusText}`, data);
+        }
+      } catch (error) {
+        showResult('api-health-result', 'error', `Error: ${error.message}`);
+      }
+    });
+    
+    document.getElementById('check-cors-btn').addEventListener('click', async () => {
+      try {
+        const apiUrl = document.getElementById('api-url').value;
+        
+        showResult('api-health-result', 'info', 'Testing CORS...');
+        
+        const response = await fetch(`${apiUrl}/cors-test`, {
+          method: 'OPTIONS',
+          headers: {
+            'Origin': window.location.origin
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json().catch(() => ({}));
+          showJsonResult('api-health-result', 'success', 'CORS is configured correctly!', {
+            status: response.status,
+            statusText: response.statusText,
+            headers: {
+              'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+              'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+              'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers')
+            },
+            data
+          });
+        } else {
+          showResult('api-health-result', 'error', `CORS test failed: ${response.status} ${response.statusText}`);
+        }
+      } catch (error) {
+        showResult('api-health-result', 'error', `Error: ${error.message}`);
+      }
+    });
+    
+    // Custom request functionality
+    document.getElementById('load-auth-header-btn').addEventListener('click', () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const headers = JSON.parse(document.getElementById('request-headers').value);
+          headers['Authorization'] = `Bearer ${token}`;
+          document.getElementById('request-headers').value = JSON.stringify(headers, null, 2);
+          showResult('custom-request-result', 'info', 'Auth header loaded from localStorage');
+        } catch (error) {
+          showResult('custom-request-result', 'error', `Error parsing headers: ${error.message}`);
+        }
+      } else {
+        showResult('custom-request-result', 'warning', 'No token found in localStorage');
+      }
+    });
+    
+    document.getElementById('send-request-btn').addEventListener('click', async () => {
+      try {
+        const url = document.getElementById('request-url').value;
+        const method = document.getElementById('request-method').value;
+        const headers = JSON.parse(document.getElementById('request-headers').value);
+        const body = document.getElementById('request-body').value;
+        
+        showResult('custom-request-result', 'info', `Sending ${method} request to ${url}...`);
+        
+        const options = {
+          method,
+          headers
+        };
+        
+        if (method !== 'GET' && method !== 'HEAD') {
+          options.body = body;
+        }
+        
+        const response = await fetch(url, options);
+        const data = await response.json().catch(() => ({}));
+        
+        if (response.ok) {
+          showJsonResult('custom-request-result', 'success', `Request successful: ${response.status} ${response.statusText}`, data);
+        } else {
+          showJsonResult('custom-request-result', 'error', `Request failed: ${response.status} ${response.statusText}`, data);
+        }
+      } catch (error) {
+        showResult('custom-request-result', 'error', `Error: ${error.message}`);
+      }
+    });
+    
+    // Initialize
+    document.getElementById('load-token-btn').click();
+    document.getElementById('api-url').value = localStorage.getItem('apiUrl') || 'https://ghar-02ex.onrender.com/api';
+    
+    // Save API URL when changed
+    document.getElementById('api-url').addEventListener('change', (e) => {
+      localStorage.setItem('apiUrl', e.target.value);
+    });
+  </script>
+</body>
+</html>

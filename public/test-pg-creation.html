@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test PG Creation - Ghar</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .card {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      border: 1px solid #e9ecef;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover { background: #0056b3; }
+    .success { color: #28a745; background: #d4edda; padding: 10px; border-radius: 4px; }
+    .error { color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 4px; }
+    .info { color: #17a2b8; background: #d1ecf1; padding: 10px; border-radius: 4px; }
+    pre { background: #f1f3f4; padding: 15px; border-radius: 4px; overflow-x: auto; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>🏠 Ghar PG Creation Test</h1>
+  
+  <div class="card">
+    <h2>📋 Sample PG Data</h2>
+    <pre id="sample-data"></pre>
+    <button onclick="testPGCreation()">🚀 Test PG Creation</button>
+    <button onclick="checkAPIHealth()">🏥 Check API Health</button>
+    <button onclick="checkToken()">🔑 Check Token</button>
+  </div>
+  
+  <div class="card">
+    <h2>📊 Test Results</h2>
+    <div id="results">Click a button above to start testing...</div>
+  </div>
+  
+  <div class="card">
+    <h2>🔧 Manual Token Entry</h2>
+    <p>If you don't have a token in localStorage, paste it here:</p>
+    <textarea id="manual-token" placeholder="Paste your JWT token here..." style="width: 100%; height: 100px;"></textarea>
+    <button onclick="setManualToken()">💾 Save Token</button>
+  </div>
+
+  <script>
+    // Sample data
+    const sampleData = {
+      "name": "Comfort Villa PG",
+      "description": "A comfortable and safe PG for students and working professionals",
+      "location": { "city": "Mumbai" },
+      "price": 12000,
+      "totalRooms": 10,
+      "availableRooms": 8,
+      "contactNumber": "9876543210",
+      "amenities": ["WiFi", "AC", "Food Included", "24/7 Security", "Laundry"],
+      "images": ["https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800"],
+      "rules": ["No smoking inside rooms", "No loud music after 10 PM"]
+    };
+    
+    const API_URL = 'https://ghar-02ex.onrender.com/api';
+    
+    // Display sample data
+    document.getElementById('sample-data').textContent = JSON.stringify(sampleData, null, 2);
+    
+    function showResult(type, message, data = null) {
+      const resultsDiv = document.getElementById('results');
+      let html = `<div class="${type}">${message}</div>`;
+      if (data) {
+        html += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      }
+      resultsDiv.innerHTML = html;
+    }
+    
+    async function checkAPIHealth() {
+      showResult('info', '🏥 Checking API health...');
+      
+      try {
+        const response = await fetch(`${API_URL}/health`);
+        const data = await response.json();
+        
+        if (response.ok) {
+          showResult('success', '✅ API is online and healthy!', data);
+        } else {
+          showResult('error', '❌ API health check failed', data);
+        }
+      } catch (error) {
+        showResult('error', `💥 API is unreachable: ${error.message}`);
+      }
+    }
+    
+    function checkToken() {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        showResult('error', '❌ No token found in localStorage. Please login first or use manual token entry.');
+        return;
+      }
+      
+      try {
+        // Decode JWT token
+        const parts = token.split('.');
+        if (parts.length !== 3) {
+          showResult('error', '❌ Invalid token format');
+          return;
+        }
+        
+        const payload = JSON.parse(atob(parts[1]));
+        const currentTime = Math.floor(Date.now() / 1000);
+        const isExpired = payload.exp && payload.exp < currentTime;
+        
+        if (isExpired) {
+          showResult('error', '❌ Token has expired. Please login again.', {
+            userId: payload.userId,
+            expiredAt: new Date(payload.exp * 1000).toLocaleString()
+          });
+        } else {
+          showResult('success', '✅ Token is valid!', {
+            userId: payload.userId,
+            expiresAt: payload.exp ? new Date(payload.exp * 1000).toLocaleString() : 'Never'
+          });
+        }
+      } catch (error) {
+        showResult('error', `❌ Error decoding token: ${error.message}`);
+      }
+    }
+    
+    async function testPGCreation() {
+      showResult('info', '🚀 Testing PG creation with sample data...');
+      
+      try {
+        // Get token
+        const token = localStorage.getItem('token');
+        if (!token) {
+          showResult('error', '❌ No authentication token found. Please login first or use manual token entry.');
+          return;
+        }
+        
+        // Prepare request
+        const headers = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        };
+        
+        console.log('📡 Sending request to:', `${API_URL}/pgs`);
+        console.log('📋 Data:', sampleData);
+        
+        // Make API call
+        const response = await fetch(`${API_URL}/pgs`, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(sampleData)
+        });
+        
+        const responseData = await response.json();
+        
+        if (response.ok) {
+          showResult('success', '🎉 PG created successfully!', {
+            status: response.status,
+            pgId: responseData.id || responseData._id,
+            response: responseData
+          });
+        } else {
+          showResult('error', `❌ Failed to create PG (${response.status})`, {
+            status: response.status,
+            statusText: response.statusText,
+            error: responseData
+          });
+        }
+        
+      } catch (error) {
+        showResult('error', `💥 Network error: ${error.message}`);
+      }
+    }
+    
+    function setManualToken() {
+      const token = document.getElementById('manual-token').value.trim();
+      if (token) {
+        localStorage.setItem('token', token);
+        showResult('success', '💾 Token saved to localStorage');
+        document.getElementById('manual-token').value = '';
+      } else {
+        showResult('error', '❌ Please enter a valid token');
+      }
+    }
+    
+    // Auto-check token on load
+    window.onload = function() {
+      checkToken();
+    };
+  </script>
+</body>
+</html>
