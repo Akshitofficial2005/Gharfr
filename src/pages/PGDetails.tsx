@@ -8,6 +8,7 @@ import { socketService } from '../utils/socket';
 import { useAuth } from '../contexts/AuthContext';
 import { bookingAPI } from '../services/api';
 import { AnalyticsService } from '../services/analyticsService';
+import { safeRenderLocation } from '../utils/locationUtils';
 import StanzaBooking from '../components/StanzaBooking';
 import ExtraAmenities from '../components/ExtraAmenities';
 import { PGDetailsSkeleton, ReviewSkeleton, LoadingSpinner } from '../components/Skeletons';
@@ -311,7 +312,7 @@ const PGDetails: React.FC = () => {
               
               <div className="flex items-center text-gray-600 mb-4">
                 <MapPin className="h-5 w-5 mr-2" />
-                <span>{pg.location.address}, {pg.location.city}, {pg.location.state} - {pg.location.pincode}</span>
+                <span>{safeRenderLocation(pg.location)}</span>
               </div>
 
               <p className="text-gray-700 leading-relaxed mb-6">{pg.description}</p>
@@ -567,7 +568,8 @@ const PGDetails: React.FC = () => {
               <div 
                 className="h-48 rounded-lg overflow-hidden cursor-pointer bg-gray-100 flex items-center justify-center relative border-2 border-dashed border-gray-300 hover:border-blue-400 transition-colors"
                 onClick={() => {
-                  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(pg.location.address + ', Indore, Madhya Pradesh')}`;
+                  const addressString = safeRenderLocation(pg.location);
+                  const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressString)}`;
                   window.open(mapUrl, '_blank');
                 }}
               >
@@ -589,7 +591,7 @@ const PGDetails: React.FC = () => {
               </div>
               </div>
               <p className="text-sm text-gray-600 mt-2">
-                {pg.location.address}, Indore, Madhya Pradesh
+                {safeRenderLocation(pg.location)}
               </p>
             </div>
           </div>

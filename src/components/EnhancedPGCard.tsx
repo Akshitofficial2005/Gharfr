@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { EnhancedPG } from '../types/enhanced';
 import { AnalyticsService } from '../services/analyticsService';
+import { safeRenderLocation } from '../utils/locationUtils';
 import { 
   MapPin, Star, Wifi, Car, Utensils, Dumbbell, Shield, Zap, 
   Heart, Phone, MessageCircle, Eye, Users, Home, GraduationCap,
@@ -57,7 +58,7 @@ const EnhancedPGCard: React.FC<EnhancedPGCardProps> = ({ pg, userLocation }) => 
     AnalyticsService.getInstance().track('enhanced_property_card_click', {
       propertyId: pg.id,
       propertyName: pg.name,
-      location: `${pg.location.address}, ${pg.location.city}`,
+      location: safeRenderLocation(pg.location),
       rating: pg.rating,
       minPrice: getMinPrice(),
       availableRooms: getTotalAvailableRooms(),
@@ -173,7 +174,7 @@ const EnhancedPGCard: React.FC<EnhancedPGCardProps> = ({ pg, userLocation }) => 
           </h3>
           <div className="flex items-center text-gray-600 text-sm mb-1">
             <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
-            <span className="line-clamp-1">{pg.location.address}</span>
+            <span className="line-clamp-1">{safeRenderLocation(pg.location)}</span>
           </div>
           
           {/* Nearest College */}

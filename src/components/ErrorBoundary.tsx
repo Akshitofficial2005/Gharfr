@@ -22,6 +22,12 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
+    
+    // Check if this is the React error #31 (object rendering error)
+    if (error.message && error.message.includes('Minified React error #31')) {
+      console.error('React Error #31 detected: Attempting to render object in JSX');
+      console.error('Component stack:', errorInfo.componentStack);
+    }
   }
 
   render() {
@@ -34,7 +40,9 @@ class ErrorBoundary extends Component<Props, State> {
             </div>
             <h2 className="text-xl font-bold text-gray-900 mb-2">Something went wrong</h2>
             <p className="text-gray-600 mb-6">
-              We encountered an unexpected error. Please try refreshing the page.
+              {this.state.error?.message?.includes('Minified React error #31') 
+                ? 'There was an issue displaying some content. Please refresh the page.'
+                : 'We encountered an unexpected error. Please try refreshing the page.'}
             </p>
             <div className="flex space-x-3">
               <button

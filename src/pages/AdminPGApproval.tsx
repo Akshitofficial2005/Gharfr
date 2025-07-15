@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { adminAPI } from '../services/api';
+import { safeRenderLocation } from '../utils/locationUtils';
 import { Check, X, Eye, Edit } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -112,7 +113,7 @@ const AdminPGApproval: React.FC = () => {
                         />
                         <div>
                           <h3 className="text-lg font-semibold text-gray-900">{pg.name}</h3>
-                          <p className="text-gray-600">{pg.location.address}, {pg.location.city}</p>
+                          <p className="text-gray-600">{safeRenderLocation(pg.location)}</p>
                           <p className="text-sm text-gray-500">
                             Owner: {pg.owner.name} ({pg.owner.phone})
                           </p>
@@ -207,8 +208,7 @@ const AdminPGApproval: React.FC = () => {
                 <div>
                   <h3 className="font-semibold mb-2">Details</h3>
                   <div className="space-y-2 text-sm">
-                    <p><strong>Address:</strong> {selectedPG.location.address}</p>
-                    <p><strong>City:</strong> {selectedPG.location.city}, {selectedPG.location.state}</p>
+                    <p><strong>Location:</strong> {safeRenderLocation(selectedPG.location)}</p>
                     <p><strong>Owner:</strong> {selectedPG.owner.name}</p>
                     <p><strong>Email:</strong> {selectedPG.owner.email}</p>
                     <p><strong>Phone:</strong> {selectedPG.owner.phone}</p>

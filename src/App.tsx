@@ -11,6 +11,7 @@ import LiveChat from './components/LiveChat';
 import QuickActions from './components/QuickActions';
 // import { registerServiceWorker, handleInstallPrompt } from './utils/pwa';
 import { setupGlobalErrorHandler } from './utils/errorHandling';
+import './utils/debugLocationRendering';
 // import Footer from './components/Footer'; // Removed as requested
 import CleanHome from './pages/CleanHome';
 import Landing from './pages/Landing';
@@ -29,9 +30,7 @@ import Bookings from './pages/Bookings';
 import Payment from './pages/Payment';
 import OwnerDashboard from './pages/OwnerDashboard';
 import CreatePG from './pages/CreatePG';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminPGApproval from './pages/AdminPGApproval';
-import AdminAmenities from './pages/AdminAmenities';
+import SimplifiedAdminPanel from './pages/SimplifiedAdminPanel';
 import NotFound from './pages/NotFound';
 import MapTest from './pages/MapTest';
 import About from './pages/About';
@@ -68,6 +67,12 @@ function App() {
     // registerServiceWorker(); // Temporarily disabled for Google OAuth debugging
     // handleInstallPrompt(); // Disabled to prevent DOM conflicts with React
     setupGlobalErrorHandler();
+    
+    // Initialize location rendering debug utilities in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Location rendering debug utilities loaded');
+      console.log('Run testLocationRendering() in console to test location rendering');
+    }
   }, []);
 
   // Ensure Google Client ID is configured for production
@@ -178,26 +183,10 @@ function App() {
                   
                   {/* Admin Routes */}
                   <Route 
-                    path="/admin/dashboard" 
+                    path="/admin" 
                     element={
                       <ProtectedRoute allowedRoles={['admin']}>
-                        <AdminDashboard />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/admin/pg-approval" 
-                    element={
-                      <ProtectedRoute allowedRoles={['admin']}>
-                        <AdminPGApproval />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/admin/amenities" 
-                    element={
-                      <ProtectedRoute allowedRoles={['admin']}>
-                        <AdminAmenities />
+                        <SimplifiedAdminPanel />
                       </ProtectedRoute>
                     } 
                   />

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { PG } from '../types';
 import { AnalyticsService } from '../services/analyticsService';
+import { safeRenderLocation } from '../utils/locationUtils';
 import { MapPin, Star, Wifi, Car, Utensils, Dumbbell, Shield, Zap } from 'lucide-react';
 
 interface PGCardProps {
@@ -13,7 +14,7 @@ const PGCard: React.FC<PGCardProps> = ({ pg }) => {
     AnalyticsService.getInstance().track('property_card_click', {
       propertyId: pg.id,
       propertyName: pg.name,
-      location: `${pg.location.address}, ${pg.location.city}`,
+      location: safeRenderLocation(pg.location),
       rating: pg.rating,
       minPrice: getMinPrice(),
       availableRooms: getAvailableRooms()
@@ -77,7 +78,7 @@ const PGCard: React.FC<PGCardProps> = ({ pg }) => {
           </h3>
           <div className="flex items-center text-gray-600 text-sm">
             <MapPin className="h-4 w-4 mr-1 flex-shrink-0" />
-            <span className="line-clamp-1">{pg.location.address}, {pg.location.city}</span>
+            <span className="line-clamp-1">{safeRenderLocation(pg.location)}</span>
           </div>
         </div>
 
